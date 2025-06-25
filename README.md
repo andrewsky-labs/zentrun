@@ -8,17 +8,17 @@ but now you're building executable agents that define and run their own automati
 
 
 <div align="center">
-  <img src="/images/zentrun_main.jpg" alt="Zentrun" width="90%">
+  <img src="/assets/zentrun_main.jpg" alt="Zentrun" width="90%">
 </div>
 
 <div align="center">
-  <img src="/images/zent_build.png" alt="Zentrun" width="90%">
+  <img src="/assets/zent_build.png" alt="Zentrun" width="90%">
 </div>
 <div align="center">
-  <img src="/images/agent_build.png" alt="Zentrun" width="90%">
+  <img src="/assets/agent_build.png" alt="Zentrun" width="90%">
 </div>
 <div align="center">
-  <img src="/images/zpilot_build.png" alt="Zentrun" width="90%">
+  <img src="/assets/zpilot_build.png" alt="Zentrun" width="90%">
 </div>
 
 ---
@@ -44,6 +44,20 @@ yarn run dev
 ```
 
 This handles everything: installs dependencies, builds core components, and launches the app.
+
+## ✨ Demo
+
+
+📹 In the video below, a marketing agent
+
+[collects → processes → uploads → analyzes → visualizes]
+
+content — all through vibe-coding.
+
+<video controls width="600">
+  <source src="assets/demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
 
 ## ✨ Why Zentrun?
