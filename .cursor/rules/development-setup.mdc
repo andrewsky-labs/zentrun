@@ -1,0 +1,53 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 开发环境设置指南
+
+## 环境要求
+- Node.js 16+
+- npm 7+
+- Git
+
+## 开发工具
+- VS Code（推荐）
+- Vue DevTools
+- Electron DevTools
+
+## 开发环境设置步骤
+
+1. 安装依赖：
+```bash
+npm install
+```
+
+2. 开发模式启动：
+```bash
+npm run dev
+```
+
+3. 构建应用：
+```bash
+npm run build
+```
+
+## 开发规范
+
+1. 代码风格
+- 使用 ESLint 进行代码检查
+- 使用 Prettier 进行代码格式化
+- 遵循 [.eslintrc.cjs](mdc:.eslintrc.cjs) 中的规则
+- 遵循 [.prettierrc.yaml](mdc:.prettierrc.yaml) 中的格式化规则
+
+2. Git 提交规范
+- 遵循 [CONTRIBUTING.md](mdc:CONTRIBUTING.md) 中的提交规范
+- 使用语义化提交信息
+
+3. 测试规范
+- 编写单元测试
+- 运行测试：`npm run test`
+
+4. 文档规范
+- 更新相关文档
+- 保持 README 文件的最新状态

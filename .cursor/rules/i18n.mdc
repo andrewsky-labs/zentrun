@@ -1,0 +1,73 @@
+---
+description: Internationalization for renderer
+globs: src/renderer/src/**
+alwaysApply: false
+---
+# Internationalization
+i18n:
+  framework: 'vue-i18n'
+  location: 'src/renderer/src/i18n'
+  requirement: 'all user-facing strings must use i18n keys'
+  locales: ['zh-CN','en-US','ko-KR','ru-RU','zh-HK','fr-FR']
+
+# 国际化开发指南
+
+## 多语言支持
+
+本项目支持多语言，包括：
+- 中文（简体）
+- 英文
+- 日文
+- 韩文
+- 俄文
+- 繁体中文
+- 法文
+
+## 技术实现
+
+- 框架：vue-i18n
+- 位置：src/renderer/src/i18n
+- 要求：所有面向用户的字符串必须使用 i18n 键
+
+## 文件结构
+
+- 语言文件位于 `src/renderer/src/locales/` 目录
+- 每种语言都有独立的 JSON 文件
+- 共享的翻译键值放在 `common.json` 中
+
+## 使用规范
+
+1. 翻译键命名规范：
+- 使用点号分隔的层级结构
+- 使用小写字母
+- 使用有意义的描述性名称
+- 例如：`common.button.submit`
+
+2. 添加新翻译：
+- 在 `common.json` 中添加共享翻译
+- 在语言特定文件中添加特定翻译
+- 保持所有语言文件的键值一致
+
+3. 在代码中使用：
+```typescript
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+// 使用翻译
+const message = t('common.button.submit')
+```
+
+4. 动态切换语言：
+```typescript
+const { locale } = useI18n()
+// 切换语言
+locale.value = 'zh-CN'
+```
+
+## 最佳实践
+
+1. 避免硬编码文本
+2. 使用有意义的键名
+3. 保持翻译文件的结构一致
+4. 定期检查未使用的翻译键
+5. 确保所有用户可见的文本都使用翻译系统
