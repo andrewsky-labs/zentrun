@@ -55,7 +55,9 @@ This handles everything: installs dependencies, builds core components, and laun
 content — all through vibe-coding.
 
 
-[![Demo Video](http://img.youtube.com/vi/HcqcrWb2jxA/0.jpg)](https://youtu.be/HcqcrWb2jxA)
+[![Demo Video](assets/demo.jpg)](https://youtu.be/HcqcrWb2jxA)
+
+Click the image to play the video.
 
 ## ✨ Why Zentrun?
 
