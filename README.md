@@ -54,11 +54,8 @@ This handles everything: installs dependencies, builds core components, and laun
 
 content — all through vibe-coding.
 
-<video controls width="600">
-  <source src="assets/demo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
 
+[![Demo Video](http://img.youtube.com/vi/HcqcrWb2jxA/0.jpg)](https://youtu.be/HcqcrWb2jxA)
 
 ## ✨ Why Zentrun?
 
