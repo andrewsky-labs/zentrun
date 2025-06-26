@@ -9,11 +9,11 @@ Your agent grows like an app — not a script.
 
 ## 🔍 What Is Software 3.0?
 
-| Software 1.0 (SaaS) | Software 3.0 (Zentrun) |
-|---------------------|--------------------------|
-| Fixed, prebuilt features | Create any function via prompt |
-| Data locked in vendor systems | Data stays in your agent's local DB |
-| Limited UI and workflow structure | Fully customizable UI + flow from natural language |
+| Software 1.0 (SaaS) | Software 3.0 (Zentrun)                                              |
+|---------------------|---------------------------------------------------------------------|
+| Fixed, prebuilt features | Users can create additional functions via prompt                    |
+| Data locked in vendor systems | Data stays in your agent's own DB                                   |
+| Limited UI and workflow structure | Users can create fully customizable UI + flow from natural language |
 
 In Software 3.0, users don’t consume software — they **grow** it.
 Zentrun empowers you to turn natural language into working code, and let your agents accumulate real, executable skills.
@@ -54,14 +54,18 @@ This handles everything: installs dependencies, builds core components, and laun
 
 In the demo below, a marketing agent:
 
-📥 Collects AI-related news
-✍️ Transforms it into SNS posts
-🐦 Uploads content to Twitter
-📊 Analyzes collected data
-📈 Visualizes insights through a custom UI
+1) 📥 Collects AI-related news
 
-All steps are created and run through **vibe-coding** — natural language transformed into stored, reusable functions.
+2) ✍️ Transforms it into SNS posts
 
+3) 🐦 Uploads content to Twitter
+
+4) 📊 Analyzes collected data
+
+5) 📈 Visualizes insights through a custom UI
+
+All steps are created and run through vibe-coding —
+imagine using an app and being able to add new features on the fly, just by saying what you want.
 
 [![Demo Video](assets/demo.jpg)](https://youtu.be/HcqcrWb2jxA)
 
