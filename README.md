@@ -1,25 +1,27 @@
-# Software 3.0 — AI Agents that Build and Run Their Own Features
+# Zentrun — A Software 3.0 Framework for Function-Evolving AI Agents
 
-Create your own AI team through vibe coding — just like building a website,
-but now you're building executable agents that define and run their own automation, analytics, and visualization features.
+Zentrun is a Software 3.0 framework where AI agents don't just respond —
+they evolve by equipping new functions through natural language prompts.
 
+Each prompt becomes executable code.
+Each piece of code becomes a reusable feature.
+Your agent grows like an app — not a script.
+
+## 🔍 What Is Software 3.0?
+
+| Software 1.0 (SaaS) | Software 3.0 (Zentrun) |
+|---------------------|--------------------------|
+| Fixed, prebuilt features | Create any function via prompt |
+| Data locked in vendor systems | Data stays in your agent's local DB |
+| Limited UI and workflow structure | Fully customizable UI + flow from natural language |
+
+In Software 3.0, users don’t consume software — they **grow** it.
+Zentrun empowers you to turn natural language into working code, and let your agents accumulate real, executable skills.
+
+---
 
 [Learn More about Zentrun](https://zentrun.com)
 
-
-<div align="center">
-  <img src="/assets/zentrun_main.jpg" alt="Zentrun" width="90%">
-</div>
-
-<div align="center">
-  <img src="/assets/zent_build.png" alt="Zentrun" width="90%">
-</div>
-<div align="center">
-  <img src="/assets/agent_build.png" alt="Zentrun" width="90%">
-</div>
-<div align="center">
-  <img src="/assets/zpilot_build.png" alt="Zentrun" width="90%">
-</div>
 
 ---
 
@@ -48,84 +50,89 @@ This handles everything: installs dependencies, builds core components, and laun
 ## ✨ Demo
 
 
-📹 In the video below, a marketing agent
+🎬 Demo: See an Agent Grow
 
-[collects → processes → uploads → analyzes → visualizes]
+In the demo below, a marketing agent:
 
-content — all through vibe-coding.
+📥 Collects AI-related news
+✍️ Transforms it into SNS posts
+🐦 Uploads content to Twitter
+📊 Analyzes collected data
+📈 Visualizes insights through a custom UI
+
+All steps are created and run through **vibe-coding** — natural language transformed into stored, reusable functions.
 
 
 [![Demo Video](assets/demo.jpg)](https://youtu.be/HcqcrWb2jxA)
 
 Click the image to play the video.
 
-## ✨ Why Zentrun?
+---
 
-| Feature | What it means for you |
-|---------|-----------------------|
-| **Prompt-to-App** | Create AI agents that generate and run automation, analytics, and UI from a single prompt. |
-| **Executable AI Agents** | Your agents aren't just responders — they build and run real functions like apps. |
-| **Agents with memory** | Each agent has its own embedded DB — track state, retain context, and evolve over time. |
-| **Fully local, fully yours** | All code and data stay on your machine. No API quotas, no cloud dependency. |
-| **Zero-code, vibe-coded** | Write structured logic in natural language — no drag-and-drop, no scripting. |
-| **Composable automation** | Chain Zent → Agent → ZPilot to build scalable, multi-agent workflows. |
-| **Built-in marketplace** | Import & share agents, monetize your automations instantly. |
+## 🧠 Why Zentrun?
 
-## 🔎 What is Software 3.0 — and Why It Matters
+| Core Value | What It Enables |
+|------------|------------------|
+| **Prompt-to-Code** | Your prompts generate executable code, not just results. |
+| **Persistent Features** | Every prompt becomes a stored function — schedule, reuse, and chain it. |
+| **Agent Memory** | Each agent has its own embedded DB — remembers state, tracks data, builds history. |
+| **Full-stack Agent Logic** | Go beyond automation: create analytics, UI, file parsing, and app-like flows. |
+| **Local-first by design** | Run everything on your machine. No API quotas, no cloud dependency. |
+| **Composable Architecture** | Zent → Agent → ZPilot — build scalable workflows from small pieces. |
+| **Vibe-coded simplicity** | Write and structure logic in natural language — no drag & drop. |
 
-Software 3.0 is the next step after traditional coding (Software 1.0) and model training (Software 2.0).
-In Software 3.0, **prompts** replace manual coding — and agents can build, execute, and evolve applications on their own.
-
-Zentrun is built from the ground up for this paradigm:
-You don't just trigger workflows — you define full automation, analytics, and UI logic in natural language,
-and your agents generate, store, and run them like real SaaS apps.
-
-
+---
 
 ## ✨ Zentrun Key Features
 
+### 1. 🤖 Agent-Based Code Generation
+- Agents generate actual Python, shell, and browser code from prompts
+- Features are saved, reusable, and schedulable
+- Zent → Agent → ZPilot hierarchy supports modular automation
 
-1. 🤖 Agent-centric Automation
-   - 🧩 Zent → Agent → ZPilot module tree scales from a tiny script to a full multi-agent orchestration
+### 2. 🧠 Embedded Memory & RAG
+- Each agent has a built-in DB (SQLite)
+- Agents remember past results and decisions
+- RAG support: pull docs into context from local/cloud sources
 
-   - 🗄 Each agent ships with an embedded database for memory, deduplication, and long-term learning
+### 3. 📊 Full Data Flow: Ingest → Analyze → Visualize
+- Handle PDFs, text, CSVs, web scraping, and APIs
+- Auto-generate SQL/Python for data wrangling
+- Generate Markdown-ready charts (Mermaid, Matplotlib)
 
-   - 🧠 RAG built-in: pull local or cloud documents into context-aware decisions
+### 4. 🛠 Automation & App Logic
+- Slack, Reddit, Twitter, CRM, form filling, scraping, and browser actions
+- MCP server controls Chromium browsers locally
+- Publish agents or Zent packs to community marketplace
 
-2. 🔮 Flexible LLM Engine
-    - ☁️ Cloud models on demand: real-time calls to OpenAI, Gemini, Anthropic, and other major providers
+### 5. 💻 Developer & User Experience
+- Works on Windows, macOS, Linux (Electron & CLI)
+- Instant install & run — all local, no complex setup
+- Export/share agents as single files
+- Themeable UI with light/dark/transparent modes
 
-   - 💻 Local inference: run Ollama or LM Studio on your own GPU/CPU
+---
 
-   - 🔗 One-line engine switching: swap between on-prem and cloud models with a single prompt
+Zentrun isn’t just a tool. It’s a Software 3.0 framework where agents evolve from your words.
 
-
-3. 📊 Data Collection, Analysis & Visualization
-   - 📄 Parse multiple formats: text, CSV, images, PDFs, and more
-
-   - 🔍 Auto-generate executable SQL + Python code for instant preprocessing
-
-   - 📈 Share Mermaid or Matplotlib visuals directly in Markdown
-
-
-4. 🛠 Real-world Integrations & Workflows
-   - ⚡ One-click connectors for Slack, Reddit, Twitter, CRMs, webhooks, and beyond
-
-   - 🔌 MCP Server controls browsers for scraping, form filling, and other actions
-
-   - 🛒 Automation Marketplace: import community-built agents or publish your own for revenue
+### Screenshots
 
 
-5. 🌟 User Experience
-   - 🖥️ Cross-platform on Windows, macOS, and Linux (Electron & CLI)
 
-   - 🚀 Run immediately—no extra environment setup; everything executes locally
+<div align="center">
+  <img src="/assets/zentrun_main.jpg" alt="Zentrun" width="90%">
+</div>
 
-   - 🎨 Light, dark, and transparent themes with multi-window layouts
+<div align="center">
+  <img src="/assets/zent_build.png" alt="Zentrun" width="90%">
+</div>
+<div align="center">
+  <img src="/assets/agent_build.png" alt="Zentrun" width="90%">
+</div>
+<div align="center">
+  <img src="/assets/zpilot_build.png" alt="Zentrun" width="90%">
+</div>
 
-   - 📦 Agent packaging & sharing: export as a single file and deploy to your team
-
-Zentrun: A world-first, “vibe-coded” AI team builder—experience Software 3.0 that acts, learns, and scales beyond simple automation.
 
 ## 🤖 Supported Model Providers
 
