@@ -14,6 +14,8 @@ Your agent grows like an app — not a script.
 | Fixed, prebuilt features | Users can create additional functions via prompt                    |
 | Data locked in vendor systems | Data stays in your agent's own DB                                   |
 | Limited UI and workflow structure | Users can create fully customizable UI + flow from natural language |
+| Limited analytics due to restricted data access	 | Full data ownership with unlimited analytics possibilities |
+| One-size-fits-all tools		 | Agents tailored to your workflow	 |
 
 In Software 3.0, users don’t consume software — they **grow** it.
 Zentrun empowers you to turn natural language into working code, and let your agents accumulate real, executable skills.
