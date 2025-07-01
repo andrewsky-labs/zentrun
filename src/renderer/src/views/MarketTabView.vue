@@ -63,8 +63,8 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           <div v-for="item in organizations" :key="item.id" class=" rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
             <div class="flex items-center justify-between p-4 pb-0">
-              <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />
-              <span v-if="parseCategories(item.categories)" class="text-xs font-bold px-2 py-1 rounded">{{ parseCategories(item.categories)[0] }}</span>
+<!--              <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />-->
+              <span v-if="parseCategories(item.categories)" class="text-xs ">{{ parseCategories(item.categories)[0] }}</span>
             </div>
             <div class="p-4 flex-1 flex flex-col">
               <h3 class="font-bold text-base mb-1 truncate" :title="item.name">{{ item.name }}</h3>
@@ -96,8 +96,8 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           <div v-for="item in agents" :key="item.id" class=" rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
             <div class="flex items-center justify-between p-4 pb-0">
-              <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />
-              <span v-if="parseCategories(item.categories)" class="text-xs font-bold px-2 py-1 rounded">{{ parseCategories(item.categories)[0] }}</span>
+<!--              <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />-->
+              <span v-if="parseCategories(item.categories)" class="text-xs ">{{ parseCategories(item.categories)[0] }}</span>
             </div>
             <div class="p-4 flex-1 flex flex-col">
               <h3 class="font-bold text-base mb-1 truncate" :title="item.name">{{ item.name }}</h3>
@@ -129,7 +129,7 @@
           <div v-for="item in zents" :key="item.id" class=" rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
             <div class="flex items-center justify-between p-4 pb-0">
 <!--              <img :src="item.logo_url || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />-->
-              <span v-if="parseCategories(item.categories)" class="text-xs font-bold px-2 py-1 rounded">{{ parseCategories(item.categories)[0] }}</span>
+              <span v-if="parseCategories(item.categories)" class="text-xs ">{{ parseCategories(item.categories)[0] }}</span>
             </div>
             <div class="p-4 flex-1 flex flex-col">
               <h3 class="font-bold text-base mb-1 truncate" :title="item.name">{{ item.name }}</h3>
@@ -197,7 +197,7 @@
           <div v-for="item in zents" :key="item.id" class=" rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
             <div class="flex items-center justify-between p-4 pb-0">
   <!--              <img :src="item.logo_url || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />-->
-              <span v-if="parseCategories(item.categories)" class="text-xs font-bold px-2 py-1 rounded">{{ parseCategories(item.categories)[0] }}</span>
+              <span v-if="parseCategories(item.categories)" class="text-xs ">{{ parseCategories(item.categories)[0] }}</span>
             </div>
             <div class="p-4 flex-1 flex flex-col">
               <h3 class="font-bold text-base mb-1 truncate" :title="item.name">{{ item.name }}</h3>
@@ -275,8 +275,8 @@
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4">
           <div v-for="item in agents" :key="item.id" class=" rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
             <div class="flex items-center justify-between p-4 pb-0">
-                <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />
-                <span v-if="parseCategories(item.categories)" class="text-xs font-bold px-2 py-1 rounded">{{ parseCategories(item.categories)[0] }}</span>
+<!--                <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />-->
+                <span v-if="parseCategories(item.categories)" class="text-xs ">{{ parseCategories(item.categories)[0] }}</span>
               </div>
             <div class="p-4 flex-1 flex flex-col">
               <h3 class="font-bold text-base mb-1 truncate" :title="item.name">{{ item.name }}</h3>
@@ -354,8 +354,8 @@
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4">
           <div v-for="item in organizations" :key="item.id" class=" rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
             <div class="flex items-center justify-between p-4 pb-0">
-              <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />
-              <span v-if="parseCategories(item.categories)" class="text-xs font-bold px-2 py-1 rounded">{{ parseCategories(item.categories)[0] }}</span>
+<!--              <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />-->
+              <span v-if="parseCategories(item.categories)" class="text-xs ">{{ parseCategories(item.categories)[0] }}</span>
             </div>
             <div class="p-4 flex-1 flex flex-col">
               <h3 class="font-bold text-base mb-1 truncate" :title="item.name">{{ item.name }}</h3>

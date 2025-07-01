@@ -3,8 +3,8 @@
     <div class="flex items-center flex-1 cursor-pointer">
       <div @click="toggleFolder" class="flex items-center">
         <Icon :icon="thread.expanded ? 'lucide:chevron-down' : 'lucide:chevron-right'" class="w-4 h-4 mr-1" />
-<!--        <Icon icon="lucide:package" class="w-4 h-4 mr-2" />-->
-        <img :src="getImageUrl(thread.thumbnail)" class="w-8 h-8 mr-2" style="border-radius: 10px" />
+        <Icon icon="lucide:package" class="w-4 h-4 mr-2" />
+<!--        <img :src="getImageUrl(thread.thumbnail)" class="w-8 h-8 mr-2" style="border-radius: 10px" />-->
       </div>
       <span class="font-bold text-xs cursor-pointer" @click="$emit('view', thread)">{{ thread.name }}</span>
       <Icon v-if="thread.is_public" icon="lucide:globe" class="w-3 h-3 ml-1 text-blue-500" :title="t('public')" />

@@ -54,23 +54,23 @@
             <!-- Organization Profile -->
             <div class="pb-4 border-b">
               <div v-if="!editingProfile" class="flex items-start">
-                <div class="relative w-16 h-16 mr-4">
-                  <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
-                    <img v-if="thumbnail" :src="getImageUrl(thumbnail)" :alt="t('organization-thumbnail')" class="w-full h-full object-cover" />
-                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                    </svg>
-                  </div>
-                  <button
-                    v-if="!isViewMode && !isViewer"
-                    @click="editingProfile = true"
-                    class="absolute bottom-0 right-0 bg-white rounded-full p-0.5 border border-gray-200 hover:bg-gray-100"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                    </svg>
-                  </button>
-                </div>
+<!--                <div class="relative w-16 h-16 mr-4">-->
+<!--                  <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">-->
+<!--                    <img v-if="thumbnail" :src="getImageUrl(thumbnail)" :alt="t('organization-thumbnail')" class="w-full h-full object-cover" />-->
+<!--                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500" viewBox="0 0 20 20" fill="currentColor">-->
+<!--                      <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />-->
+<!--                    </svg>-->
+<!--                  </div>-->
+<!--                  <button-->
+<!--                    v-if="!isViewMode && !isViewer"-->
+<!--                    @click="editingProfile = true"-->
+<!--                    class="absolute bottom-0 right-0 bg-white rounded-full p-0.5 border border-gray-200 hover:bg-gray-100"-->
+<!--                  >-->
+<!--                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor">-->
+<!--                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />-->
+<!--                    </svg>-->
+<!--                  </button>-->
+<!--                </div>-->
                 <div>
                   <div class="flex items-center">
                     <h3 class="text-lg font-medium">{{ name || 'Organization Name' }}</h3>
@@ -105,7 +105,7 @@
                 </div>
 
                 <div class="flex items-center space-x-4">
-                  <ThumbnailSelectorZpilot v-model="thumbnail" label="" :required="true" />
+<!--                  <ThumbnailSelectorZpilot v-model="thumbnail" label="" :required="true" />-->
                   <div class="flex-1 space-y-2">
                     <Label class="flex flex-col gap-1">
                       <span class="text-xs font-medium">{{t('name')}} <span class="text-red-500">*</span></span>

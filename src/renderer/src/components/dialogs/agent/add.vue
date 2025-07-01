@@ -189,7 +189,7 @@
 
         <!-- RAG 관리 섹션 -->
         <div class="flex flex-col gap-2 pl-3 border-l">
-          <ThumbnailSelector :isFullSize="true" v-model="thumbnail" label="Select Agent Thumbnail" :required="true" />
+<!--          <ThumbnailSelector :isFullSize="true" v-model="thumbnail" label="Select Agent Thumbnail" :required="true" />-->
 
           <span class="font-semibold">{{ t('dialog.agent.add.ragReferenceData') }} <span class="">{{ t('Optional') }}</span></span>
           <div class="flex flex-col gap-2 overflow-y-auto max-h-[60vh]">
@@ -401,7 +401,7 @@ const handleSave = async () => {
   else {
     if (!agentData.name) missingFields.push('name');
     if (!agentData.prompt) missingFields.push('prompt');
-    if (!agentData.thumbnail) missingFields.push('thumbnail');
+    // if (!agentData.thumbnail) missingFields.push('thumbnail');
     if (agentData.categories.length === 0) missingFields.push('categories');
     if (agentData.tags.length === 0) missingFields.push('tags');
     if (!agentData.bio) missingFields.push('bio');

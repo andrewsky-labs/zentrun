@@ -24,9 +24,9 @@
             <Textarea v-model="bio" :placeholder="t('dialog.organization.add.bioPlaceholder', 'Enter organization bio')" rows="3" />
           </div>
           <!-- Permission is set to private by default and hidden from UI -->
-          <div>
-            <ThumbnailSelectorZpilot :isFullSize="true" v-model="thumbnail" :label="t('select-zpliot-thumbnail')" :required="true" />
-          </div>
+<!--          <div>-->
+<!--            <ThumbnailSelectorZpilot :isFullSize="true" v-model="thumbnail" :label="t('select-zpliot-thumbnail')" :required="true" />-->
+<!--          </div>-->
           <div class="flex justify-between items-center mt-4">
             <span class="text-xs text-muted-foreground">
               <Icon icon="lucide:info" class="inline h-4 w-4 mr-1 align-text-bottom" />
@@ -307,7 +307,7 @@ const createOrganization = async () => {
   console.log("thumbnail");
   console.log(thumbnail);
   if (!name.value) missingFields.push(t("name"));
-  if (!thumbnail.value) missingFields.push(t('thumbnail'));
+  // if (!thumbnail.value) missingFields.push(t('thumbnail'));
 
   // Check for required fields in step 2 for service or agency mode
   if ((mode.value === 'service' || mode.value === 'agency') && currentStep.value === 2) {

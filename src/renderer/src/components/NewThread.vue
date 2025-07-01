@@ -21,16 +21,16 @@
       <h3 class="text-lg text-muted-foreground px-8 pb-2">{{ t('newThread.prompt') }}</h3>
       <div class="flex mb-10">
         <div class="pr-5">
-          <a href="https://www.linkedin.com/in/seungkiyeo/" target="_blank"><img src="@/assets/images/logo_social/linkedin_logo.png" class="w-4"></a>
+          <a href="https://www.linkedin.com/in/seungkiyeo/" target="_blank"><img src="@/assets/images/logo_social/linkedin_logo_black.png" style="width: 1.2rem"></a>
         </div>
         <div class="pr-5">
-          <a href="https://www.youtube.com/channel/UC3NwZA5_Wh-cM5EvhhdEBRQ" target="_blank"><img src="@/assets/images/logo_social/youtube_logo.png" class="w-4"></a>
+          <a href="https://www.youtube.com/channel/UC3NwZA5_Wh-cM5EvhhdEBRQ" target="_blank"><img src="@/assets/images/logo_social/youtube_logo_black.png" style="width: 1.6rem"></a>
         </div>
         <div class="pr-5">
-          <a href="https://x.com/ai_saas_preneur" target="_blank"><img src="@/assets/images/logo_social/twitter_logo.png" class="w-4"></a>
+          <a href="https://x.com/ai_saas_preneur" target="_blank"><img src="@/assets/images/logo_social/twitter_logo_black.png" class="w-4"></a>
         </div>
         <div class="pr-5">
-          <a href="https://www.instagram.com/ai_saas_solopreneur_global/" target="_blank"><img src="@/assets/images/logo_social/instagram_logo.png" class="w-4"></a>
+          <a href="https://www.instagram.com/ai_saas_solopreneur_global/" target="_blank"><img src="@/assets/images/logo_social/instagram_logo_black.png" class="w-4"></a>
         </div>
       </div>
 
@@ -44,8 +44,8 @@
             @click="openAgentModal(item)"
           >
             <div class="flex items-center justify-between p-4 pb-0">
-              <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />
-              <span v-if="parseCategories(item.categories)" class="text-xs font-bold px-2 py-1 rounded">{{ parseCategories(item.categories)[0] }}</span>
+<!--              <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />-->
+              <span v-if="parseCategories(item.categories)" class="text-xs">{{ parseCategories(item.categories)[0] }}</span>
             </div>
             <div class="p-4 flex-1 flex flex-col">
               <h3 class="font-bold text-base mb-1 truncate" :title="item.name">{{ item.name }}</h3>
