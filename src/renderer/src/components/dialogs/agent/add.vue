@@ -4,7 +4,7 @@
       <DialogHeader>
         <DialogTitle>{{ t('dialog.agent.add.title') }}</DialogTitle>
       </DialogHeader>
-      <form class="grid grid-cols-2 gap-6 p-2 flex-1 overflow-y-auto text-black">
+      <form class="grid grid-cols-2 gap-6 p-2 flex-1 overflow-y-auto ">
         <div class="flex flex-col gap-4 pr-3">
           <Label class="flex flex-col gap-1">
             <span class="font-semibold">{{ t('dialog.agent.add.name') }} <span class="text-red-500">*</span></span>
@@ -16,12 +16,12 @@
           </Label>
 
           <Label class="flex flex-col gap-1">
-            <span class="font-semibold">{{ t('dialog.agent.add.description') }} <span class="text-black">{{ t('Optional') }}</span></span>
+            <span class="font-semibold">{{ t('dialog.agent.add.description') }} <span class="">{{ t('Optional') }}</span></span>
             <Textarea v-model="description" rows="3" class="w-full border rounded p-2" :placeholder="t('dialog.agent.add.descriptionPlaceholder', 'Enter agent description')"></Textarea>
           </Label>
 
           <div>
-            <span class="font-semibold">{{ t('dialog.agent.add.addZent') }} <span class="text-black">{{ t('Optional') }}</span></span>
+            <span class="font-semibold">{{ t('dialog.agent.add.addZent') }} <span class="">{{ t('Optional') }}</span></span>
             <div class="flex gap-2 items-center mt-2 relative">
               <Input
                 v-model="searchZent"
@@ -82,7 +82,7 @@
           </div>
 
           <Label class="flex flex-col gap-1">
-            <span class="font-semibold">{{ t('dialog.agent.add.categories') }} <span v-if="!isPublic" class="text-black">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
+            <span class="font-semibold">{{ t('dialog.agent.add.categories') }} <span v-if="!isPublic" class="">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
             <div class="relative category-dropdown-container">
               <div
                 class="flex flex-wrap gap-2 p-2 border rounded min-h-[38px] cursor-text"
@@ -131,7 +131,7 @@
             </div>
           </Label>
           <Label class="flex flex-col gap-1">
-            <span class="font-semibold">{{ t('dialog.agent.add.tags') }} <span v-if="!isPublic" class="text-black">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
+            <span class="font-semibold">{{ t('dialog.agent.add.tags') }} <span v-if="!isPublic" class="">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
             <div class="flex flex-wrap gap-2 p-2 border rounded">
               <div
                 v-for="tag in tagList"
@@ -156,7 +156,7 @@
           <!-- Permission is set to private by default and hidden from UI -->
 
           <Label class="flex flex-col gap-1">
-            <span class="font-semibold">{{ t('dialog.agent.add.bio', 'Bio') }} <span v-if="!isPublic" class="text-black">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
+            <span class="font-semibold">{{ t('dialog.agent.add.bio', 'Bio') }} <span v-if="!isPublic" class="">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
             <Textarea
               v-model="bio"
               rows="3"
@@ -191,7 +191,7 @@
         <div class="flex flex-col gap-2 pl-3 border-l">
           <ThumbnailSelector :isFullSize="true" v-model="thumbnail" label="Select Agent Thumbnail" :required="true" />
 
-          <span class="font-semibold">{{ t('dialog.agent.add.ragReferenceData') }} <span class="text-black">{{ t('Optional') }}</span></span>
+          <span class="font-semibold">{{ t('dialog.agent.add.ragReferenceData') }} <span class="">{{ t('Optional') }}</span></span>
           <div class="flex flex-col gap-2 overflow-y-auto max-h-[60vh]">
             <div v-for="(entry, index) in ragEntries" :key="entry.id" class="border rounded p-2">
               <div class="flex justify-between items-center mb-1">

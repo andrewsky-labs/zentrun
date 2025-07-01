@@ -3,7 +3,7 @@
     <DialogContent class="max-w-full h-[90vh]">
       <DialogHeader>
         <div class="flex items-center">
-          <button class="text-gray-600 hover:text-gray-800 flex items-center" @click="$emit('update:open', false)">
+          <button class=" hover:text-gray-800 flex items-center" @click="$emit('update:open', false)">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -77,14 +77,14 @@
 <!--                    <button-->
 <!--                      v-if="!props.isViewMode"-->
 <!--                      @click="editingProfile = true"-->
-<!--                      class="ml-2 text-gray-400 hover:text-gray-600"-->
+<!--                      class="ml-2 text-gray-400 hover:"-->
 <!--                    >-->
 <!--                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">-->
 <!--                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />-->
 <!--                      </svg>-->
 <!--                    </button>-->
                   </div>
-                  <p class="text-sm text-gray-600 mt-1">
+                  <p class="text-sm  mt-1">
                     {{ bio }}
                   </p>
                 </div>
@@ -112,7 +112,7 @@
                       <Input v-model="name" type="text" class="input input-bordered" :placeholder="t('agent-name')" />
                     </Label>
                     <Label class="flex flex-col gap-1">
-                      <span class="text-xs font-medium">{{ t('bio') }} <span v-if="!isPublic" class="text-black">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
+                      <span class="text-xs font-medium">{{ t('bio') }} <span v-if="!isPublic" class="">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
                       <Textarea v-model="bio" rows="2" class="w-full border rounded p-2 text-sm" :placeholder="t('agent-description')" />
                     </Label>
                   </div>
@@ -137,7 +137,7 @@
 
                 <div>
                   <span class="font-semibold">{{ t('dialog.agent.edit.zentList') }}</span>
-                  <p class="text-xs text-gray-600 mt-2 mb-5">
+                  <p class="text-xs  mt-2 mb-5">
                     {{ t('dialog.agent.edit.zentDefinition') }}
                   </p>
                   <div v-if="!props.isViewMode" class="flex gap-2 items-center mt-2 relative">
@@ -170,13 +170,13 @@
                           <template v-if="zent.tool_calls">
                             <template v-if="typeof zent.tool_calls === 'string'">
                               <div v-for="tool_call in JSON.parse(zent.tool_calls)" :key="tool_call.server_name"
-                                class="text-gray-600 text-4xl p-1 border-[1px] border-gray-300" style="border-radius:5px">
+                                class=" text-4xl p-1 border-[1px] border-gray-300" style="border-radius:5px">
                                 {{ tool_call.server_icons }}
                               </div>
                             </template>
                             <template v-else>
                               <div v-for="tool_call in zent.tool_calls" :key="tool_call.server_name"
-                                class="text-gray-600 text-4xl p-1 border-[1px] border-gray-300" style="border-radius:5px">
+                                class=" text-4xl p-1 border-[1px] border-gray-300" style="border-radius:5px">
                                 {{ tool_call.server_icons }}
                               </div>
                             </template>
@@ -196,7 +196,7 @@
             <!-- Connected Triggers -->
             <div>
               <h3 class="text-sm font-medium mb-4">{{ t('connected-mcps') }}</h3>
-              <p class="text-xs text-gray-600 mb-4">
+              <p class="text-xs  mb-4">
                 {{ t('allow-mcps-to-trigger-zents-for-your-agent-for-example-connect-gmail-to-trigger-your-agent-via-mcp') }}
               </p>
 
@@ -247,7 +247,7 @@
                 </div>
 
                 <!-- Bio -->
-                <p v-if="agent?.data?.userInfo?.bio" class="text-xs text-gray-600 mb-5 mt-5">
+                <p v-if="agent?.data?.userInfo?.bio" class="text-xs  mb-5 mt-5">
                   {{ agent.data.userInfo.bio }}
                 </p>
 
@@ -315,7 +315,7 @@
             <div class="pb-6 border-b">
               <div class="grid grid-cols-1 gap-4">
                 <Label class="flex flex-col gap-1">
-                  <span class="font-semibold">{{ t('dialog.agent.edit.categories') }} <span v-if="!isPublic" class="text-black">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
+                  <span class="font-semibold">{{ t('dialog.agent.edit.categories') }} <span v-if="!isPublic" class="">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
                   <div v-if="!props.isViewMode" class="relative category-dropdown-container">
                     <div
                       class="flex flex-wrap gap-2 p-2 border rounded min-h-[38px] cursor-text"
@@ -355,7 +355,7 @@
                 </Label>
 
                 <Label class="flex flex-col gap-1">
-                  <span class="font-semibold">{{ t('dialog.agent.edit.tags') }} <span v-if="!isPublic" class="text-black">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
+                  <span class="font-semibold">{{ t('dialog.agent.edit.tags') }} <span v-if="!isPublic" class="">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
                   <div v-if="!props.isViewMode" class="flex flex-wrap gap-2 p-2 border rounded">
                     <div v-for="tag in tagList" :key="tag" class="flex items-center bg-gray-100 rounded px-2 py-1 text-xs">
                       <span>{{ tag }}</span>
@@ -522,14 +522,14 @@
 <!--                <button-->
 <!--                  v-if="!props.isViewMode"-->
 <!--                  @click="editingDescription = !editingDescription"-->
-<!--                  class="text-gray-400 hover:text-gray-600"-->
+<!--                  class="text-gray-400 hover:"-->
 <!--                >-->
 <!--                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">-->
 <!--                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />-->
 <!--                  </svg>-->
 <!--                </button>-->
               </div>
-<!--              <p class="text-xs text-gray-600 mt-2 mb-5">-->
+<!--              <p class="text-xs  mt-2 mb-5">-->
 <!--                {{ t('provide-a-brief-description-of-this-agent') }}-->
 <!--              </p>-->
 
@@ -563,14 +563,14 @@
 <!--                <button-->
 <!--                  v-if="!props.isViewMode"-->
 <!--                  @click="editingPrompt = !editingPrompt"-->
-<!--                  class="text-gray-400 hover:text-gray-600"-->
+<!--                  class="text-gray-400 hover:"-->
 <!--                >-->
 <!--                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">-->
 <!--                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />-->
 <!--                  </svg>-->
 <!--                </button>-->
               </div>
-              <p class="text-xs text-gray-600 mt-2 mb-5">
+              <p class="text-xs  mt-2 mb-5">
                 {{ t('describe-the-role-and-responsibilities-of-this-agent-you-can-include-examples-of-how-it-should-respond-to-different-types-of-tasks') }}
               </p>
 
@@ -651,7 +651,7 @@
           v-else-if="isMarketplaceMode"
           v-bind:disabled="isLoading.clone.value"
           variant="default"
-          class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-md text-sm"
+          class=" font-bold py-2 px-4 rounded-md text-sm"
           @click="cloneAgent"
         >
           <div v-if="isLoading.clone.value" class="animate-spin rounded-full h-4 w-4 border-t-2 border-r-2 border-white"></div>
@@ -661,7 +661,7 @@
         <Button
           v-else
           variant="default"
-          class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-md text-sm"
+          class=" font-bold py-2 px-4 rounded-md text-sm"
           @click="handleExecuteAgent"
         >
           <Icon icon="lucide:play" class="h-4 w-4 mr-2" />

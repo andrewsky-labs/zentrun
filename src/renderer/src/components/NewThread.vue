@@ -16,10 +16,10 @@
       </Button>
     </div>
     <div class="h-0 w-full flex-grow flex flex-col items-center justify-center">
-      <img src="@/assets/logo_zentrun.png" class="w-24 h-24" />
+<!--      <img src="@/assets/logo_zentrun.png" class="w-24 h-24" />-->
       <h1 class="text-2xl font-bold px-8 pt-4">{{ t('newThread.greeting') }}</h1>
       <h3 class="text-lg text-muted-foreground px-8 pb-2">{{ t('newThread.prompt') }}</h3>
-      <div class="flex">
+      <div class="flex mb-10">
         <div class="pr-5">
           <a href="https://www.linkedin.com/in/seungkiyeo/" target="_blank"><img src="@/assets/images/logo_social/linkedin_logo.png" class="w-4"></a>
         </div>
@@ -40,19 +40,19 @@
           <div
             v-for="item in agentExamples"
             :key="item.id"
-            class="bg-white rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer"
+            class="rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer"
             @click="openAgentModal(item)"
           >
             <div class="flex items-center justify-between p-4 pb-0">
               <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />
-              <span v-if="parseCategories(item.categories)" class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded">{{ parseCategories(item.categories)[0] }}</span>
+              <span v-if="parseCategories(item.categories)" class="text-xs font-bold px-2 py-1 rounded">{{ parseCategories(item.categories)[0] }}</span>
             </div>
             <div class="p-4 flex-1 flex flex-col">
               <h3 class="font-bold text-base mb-1 truncate" :title="item.name">{{ item.name }}</h3>
               <span class="text-xs text-gray-400 mb-2">by {{ item.by || 'Unknown' }}</span>
               <p class="text-sm text-gray-700 mb-3 line-clamp-3">{{ item.bio || '' }}</p>
               <div class="flex flex-wrap gap-1 mb-2">
-                <span v-for="cat in parseCategories(item.tags)" :key="cat" class="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded">{{ cat }}</span>
+                <span v-for="cat in parseCategories(item.tags)" :key="cat" class="text-xs px-2 py-0.5 rounded">{{ cat }}</span>
               </div>
             </div>
           </div>

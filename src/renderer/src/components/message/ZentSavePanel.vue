@@ -4,7 +4,7 @@
       <h2 class="text-lg font-bold text-blue-500">{{ t('save-zent') }}</h2>
       <button @click="$emit('close')" class="text-gray-500 hover:text-gray-900">✕</button>
     </div>
-    <form class="flex flex-col gap-4 p-6 flex-1 overflow-y-auto text-black">
+    <form class="flex flex-col gap-4 p-6 flex-1 overflow-y-auto ">
       <label class="flex flex-col gap-1">
         <span class="font-semibold">{{ t('name') }} <span class="text-red-500">*</span></span>
         <input v-model="name" type="text" class="input input-bordered" />
@@ -14,7 +14,7 @@
         <textarea v-model="prompt" rows="3" class="input input-bordered" ></textarea>
       </label>
       <label class="flex flex-col gap-1">
-        <span class="font-semibold">{{ t('description') }} <span class="text-black">{{ t('Optional') }}</span></span>
+        <span class="font-semibold">{{ t('description') }} <span class="">{{ t('Optional') }}</span></span>
         <textarea v-model="description" rows="3" class="input input-bordered" placeholder="Enter a description for this Zent"></textarea>
       </label>
       <label class="flex flex-col gap-1">
@@ -35,7 +35,7 @@
         </div>
       </label>
       <label class="flex flex-col gap-1">
-        <span class="font-semibold">{{ t('categories') }} <span v-if="!isPublic" class="text-black">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
+        <span class="font-semibold">{{ t('categories') }} <span v-if="!isPublic" class="">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
         <div class="relative category-dropdown-container">
           <div
             class="flex flex-wrap gap-2 p-2 border rounded min-h-[38px] cursor-text input"
@@ -68,7 +68,7 @@
         </div>
       </label>
       <label class="flex flex-col gap-1">
-        <span class="font-semibold">{{ t('tags') }} <span v-if="!isPublic" class="text-black">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
+        <span class="font-semibold">{{ t('tags') }} <span v-if="!isPublic" class="">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
         <div class="flex flex-wrap gap-2 p-2 border rounded input">
           <div v-for="tag in tagList" :key="tag" class="flex items-center bg-gray-100 rounded px-2 py-1 text-xs">
             <span>{{ tag }}</span>
@@ -84,7 +84,7 @@
         </div>
       </label>
       <label class="flex flex-col gap-1">
-        <span class="font-semibold">{{ t('Organization') }} <span class="text-black">{{ t('Optional') }}</span></span>
+        <span class="font-semibold">{{ t('Organization') }} <span class="">{{ t('Optional') }}</span></span>
         <select v-model="selectedOrganizationSlug" class="input input-bordered" @change="fetchTeams">
           <option :value="null">{{ t('select-organization-0') }}</option>
           <option v-for="org in organizationStore.organizations.value" :key="org.slug" :value="org.slug">
@@ -93,7 +93,7 @@
         </select>
       </label>
       <label class="flex flex-col gap-1" v-if="selectedOrganizationSlug">
-        <span class="font-semibold">{{ t('Team') }} <span class="text-black">{{ t('Optional') }}</span></span>
+        <span class="font-semibold">{{ t('Team') }} <span class="">{{ t('Optional') }}</span></span>
         <select v-model="selectedTeamSlug" class="input input-bordered">
           <option :value="null">{{ t('select-team-0') }}</option>
           <option v-for="team in filteredTeams" :key="team.slug" :value="team.slug">
@@ -102,7 +102,7 @@
         </select>
       </label>
       <label class="flex flex-col gap-1">
-        <span class="font-semibold">{{ t('agent') }} <span class="text-black">{{ t('Optional') }}</span></span>
+        <span class="font-semibold">{{ t('agent') }} <span class="">{{ t('Optional') }}</span></span>
         <select v-model="selectedAgentSlug" class="input input-bordered">
           <option :value="null">{{ t('select-agent-0') }}</option>
           <option v-for="agent in filteredAgents" :key="agent.slug" :value="agent.slug">

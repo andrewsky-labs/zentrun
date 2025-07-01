@@ -3,7 +3,7 @@
     <DialogContent class="max-w-full h-[90vh]">
       <DialogHeader>
         <div class="flex items-center">
-          <button class="text-gray-600 hover:text-gray-800 flex items-center" @click="$emit('update:open', false)">
+          <button class=" hover:text-gray-800 flex items-center" @click="$emit('update:open', false)">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -77,14 +77,14 @@
                     <button
                       v-if="!isViewMode && !isViewer"
                       @click="editingProfile = true"
-                      class="ml-2 text-gray-400 hover:text-gray-600"
+                      class="ml-2 text-gray-400 hover:"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                       </svg>
                     </button>
                   </div>
-                  <p class="text-sm text-gray-600 mt-1">
+                  <p class="text-sm  mt-1">
                     {{ bio || 'Organization bio goes here' }}
                   </p>
                 </div>
@@ -133,7 +133,7 @@
             <!-- Agent List with Expandable Zents -->
             <div>
               <h3 class="text-sm font-medium mb-4">{{ t('agent-list') }}</h3>
-              <p class="text-xs text-gray-600 mb-4">
+              <p class="text-xs  mb-4">
                 {{ t('agents-in-this-organization-with-their-associated-zents') }}
               </p>
 
@@ -160,7 +160,7 @@
                         <div v-if="zent.tool_calls && zent.tool_calls.length > 0"
                              v-for="tool_call in zent.tool_calls"
                              :key="tool_call.id"
-                             class="text-gray-600 text-xs p-1 border-[1px] border-gray-300" style="border-radius:3px">
+                             class=" text-xs p-1 border-[1px] border-gray-300" style="border-radius:3px">
                           {{ tool_call.server_icons }}
                         </div>
                       </div>
@@ -179,7 +179,7 @@
             <!-- Connected MCPs -->
             <div>
               <h3 class="text-sm font-medium mb-4">{{ t('connected-mcps') }}</h3>
-              <p class="text-xs text-gray-600 mb-4">
+              <p class="text-xs  mb-4">
                 {{ t('mcps-connected-to-agents-in-this-organization') }}
               </p>
 
@@ -231,7 +231,7 @@
                 </div>
 
                 <!-- Bio -->
-                <p v-if="organization?.data?.userInfo?.bio" class="text-xs text-gray-600 mb-5 mt-5">
+                <p v-if="organization?.data?.userInfo?.bio" class="text-xs  mb-5 mt-5">
                   {{ organization.data.userInfo.bio }}
                 </p>
 
@@ -344,14 +344,14 @@
                       <button
                         v-if="!isViewMode && !isViewer"
                         @click="editingDescription = !editingDescription"
-                        class="text-gray-400 hover:text-gray-600"
+                        class="text-gray-400 hover:"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                           <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                         </svg>
                       </button>
                     </div>
-                    <p class="text-xs text-gray-600 mt-2 mb-5">
+                    <p class="text-xs  mt-2 mb-5">
                       {{ t('describe-the-purpose-and-goals-of-this-organization') }}
                     </p>
 
@@ -761,7 +761,7 @@
         <Button
           v-else-if="isMarketplaceMode && props.organization.data?.service_cost"
           variant="default"
-          class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-md text-sm"
+          class=" font-bold py-2 px-4 rounded-md text-sm"
           @click="openPaymentUrl"
         >
           <Icon icon="lucide:credit-card" class="h-4 w-4 mr-2" />
@@ -770,7 +770,7 @@
         <Button
           v-else-if="isMarketplaceMode"
           variant="default"
-          class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-md text-sm"
+          class=" font-bold py-2 px-4 rounded-md text-sm"
           @click="cloneOrganization"
         >
           <Icon icon="lucide:copy" class="h-4 w-4 mr-2" />
@@ -779,7 +779,7 @@
         <Button
           v-else
           variant="default"
-          class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-md text-sm"
+          class=" font-bold py-2 px-4 rounded-md text-sm"
           @click="handleExecuteZpilot"
         >
           <Icon icon="lucide:play" class="h-4 w-4 mr-2" />
