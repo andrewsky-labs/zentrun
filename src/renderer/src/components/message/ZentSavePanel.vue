@@ -1,7 +1,7 @@
 <template>
   <div class="fixed top-20 h-[80vh] w-1/2 bg-white shadow-lg z-50 flex flex-col border-l border-gray-200" v-if="visible">
     <div class="flex justify-between items-center px-6 py-4 border-b">
-      <h2 class="text-lg font-bold text-blue-500">{{ t('save-zent') }}</h2>
+      <h2 class="text-lg font-bold ">{{ t('save-zent') }}</h2>
       <button @click="$emit('close')" class="text-gray-500 hover:text-gray-900">✕</button>
     </div>
     <form class="flex flex-col gap-4 p-6 flex-1 overflow-y-auto ">
@@ -172,10 +172,10 @@
         </ul>
       </div>
       <div class="flex gap-2 mt-4">
-        <button type="button" class="btn btn-primary" @click.prevent="onSave" v-bind:disabled="isLoading">
+        <Button type="button" @click.prevent="onSave" v-bind:disabled="isLoading">
           <div v-if="isLoading" class="animate-spin rounded-full h-4 w-4 border-t-2 border-r-2 border-white mr-2 inline-block"></div>
           {{ t('save') }}
-        </button>
+        </Button>
         <button type="button" class="btn btn-secondary" @click.prevent="$emit('close')">{{ t('cancel') }}</button>
       </div>
     </form>
@@ -195,6 +195,7 @@ import {zentStore} from "../../stores/zent";
 import {useMcpStore} from "../../stores/mcp";
 import {apiRequest} from "@/api";
 import CollapsibleText from './CollapsibleText.vue'
+import { Button } from '@/components/ui/button'
 
 const props = defineProps({
   visible: Boolean,
