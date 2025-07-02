@@ -1,39 +1,27 @@
-# 🧠 Zentrun — A Software 3.0 based Agent App Platform
+```md
+# 🛰️ Zentrun — The Open Source Palantir Alternative
 
-Zentrun is a platform where
-**prompts generate real, executable code**,
-and that code becomes **reusable functions inside agents.**
+Zentrun is an open source platform for **AI-powered decision automation** — a transparent, prompt-driven alternative to Palantir Foundry and AIP.
 
-Each agent accumulates these functions,
-and gradually behaves like a real app —
-automating tasks, analyzing data, and supporting UI components.
+It allows you to:
+- **Ingest, analyze, and visualize data** with natural language
+- **Define actions and automate decisions** based on structured prompts
+- **Build modular, ontology-aware AI Apps** that operate like Palantir AIP Apps
 
-Zentrun runs fully locally.
-You own the features, logic, and data.
+## ✨ Demo: Prompt → Function (Zent) → App
 
----
+🎬 In the demo below, a marketing Agent App is created with prompts:
 
-## 📌 What Is an Agent App?
+1. Collects AI news
+2. Summarizes content
+3. Posts automatically to Twitter
+4. Analyzes engagement
+5. Visualizes results
 
-An **Agent App** is a unit of reusable, prompt-defined functions
-that can be saved, scheduled, and composed.
+Each step is generated from language.
+Each function is saved and reusable.
 
-It’s more than a script — it’s a growing system
-built with natural language and structured like software.
-
-| SaaS (Software 1.0)          | Agent App (Software 3.0, Zentrun)         |
-|------------------------------|--------------------------------------------|
-| Fixed features               | Create new features from prompts           |
-| Vendor-owned data            | Local database embedded per agent          |
-| No logic customization       | Custom logic and UI defined by user        |
-| Pay-per-seat licensing       | Open-source, local-first                   |
-| You use it                   | You build, run, and own it                 |
-
----
----
-
-[Learn More about Zentrun](https://zentrun.com)
-
+[![Demo Video](assets/demo.jpg)](https://youtu.be/HcqcrWb2jxA)
 
 ---
 
@@ -57,63 +45,96 @@ yarn
 yarn run dev
 ```
 
-This handles everything: installs dependencies, builds core components, and launches the app.
+---
 
-## ✨ Demo: Prompt → Function → App
+## 🧠 Prompt-to-Execution: From Questions to Actions
 
-🎬 In the demo below, a marketing Agent App is created with prompts:
+In Zentrun, prompts define **runnable logic** — not just passive insights.
+Each prompt creates a **Zent**: a structured function that can be reused, scheduled, and executed.
 
-1. Collects AI news
-2. Summarizes content
-3. Posts automatically to Twitter
-4. Analyzes engagement
-5. Visualizes results
+Zents form the building blocks of **AI Apps**, which:
+- Maintain local or RAG-based knowledge
+- Understand context through a structured ontology
+- Visualize insights and **act** on decisions
 
-Each step is generated from language.
-Each function is saved and reusable.
-
-[![Demo Video](assets/demo.jpg)](https://youtu.be/HcqcrWb2jxA)
+From prompt → to code → to logic → to action.
 
 ---
 
-## 🔧 Key Features
+## 🧭 Ontology + Logic = Strategic Execution
 
-### 1. 🧠 Prompt-Based Code Generation
-- Generate Python, shell, browser automation code
-- Save as persistent, schedulable functions
-- No drag & drop – just prompts
+Zentrun includes a lightweight yet powerful **ontology system**, allowing you to:
+- Define key entities (e.g., Candidate, Channel, Campaign)
+- Capture their relationships and historical changes
+- Build decisions mapped to structured, real-world context
 
-### 2. 📂 Agent-Level Memory & Database
-- Each agent has its own database (SQLite)
-- Supports state tracking and RAG with local/cloud docs
-
-### 3. 📊 Data Pipeline: Ingest → Analyze → Visualize
-- Handle PDFs, CSVs, APIs, scraped content
-- Auto-generate SQL, Python, and chart logic
-
-### 4. 🧱 Modular Execution Architecture
-- Zent → Agent → ZPilot (workspace hierarchy)
-- Compose agents from reusable functional units
-
-### 5. 💻 Fully Local Execution
-- Windows, macOS, Linux
-- Electron GUI and CLI
-- No cloud lock-in, no API quota
+This lets your AI Apps behave less like scripts — and more like strategic systems.
 
 ---
 
-## 💬 Monetize Your Agent Apps (Optional)
+## ⚙️ How It Works
 
-Some users package their Agent Apps
-as internal tools, client deliverables, or microservices.
-You can create repeatable workflows and share or resell them.
+**1. Prompt a function**
+→ Zentrun generates Python, SQL, or shell-based logic
 
-Zentrun helps you move from temporary automation
-to sustainable, composable software — made from prompts.
+**2. Save as Zent**
+→ Zent = Executable & schedulable logic block
+
+**3. Combine into AI App**
+→ Modular app = Zents + Ontology + Data
+
+**4. Analyze, decide, act**
+→ End-to-end automation of decision flows
 
 ---
 
-Zentrun isn’t just a tool. It’s a Software 3.0 framework where agents evolve from your words.
+## 📦 Example AI Apps
+
+- 🧑‍💼 **Recruiting App**: Detect GPT-written resumes → Score applicants → Recommend interviews
+- 📈 **Marketing App**: Track trends → Classify performance → Post & analyze content
+- 🧠 **Strategy App**: Simulate scenarios → Compare outcomes → Recommend actions
+- 🔍 **Competitive Monitor**: Track rivals → Extract signals → Suggest response
+- 💬 **Sales App**: Cluster leads → Predict success → Alert team
+
+---
+
+## 🔑 Key Features
+
+- ✅ Prompt-to-code (Python, SQL, Shell, Browser)
+- ✅ Zent = Reusable execution logic
+- ✅ Built-in visualizations (chart, table, map)
+- ✅ Structured ontology & local state memory
+- ✅ RAG integration with document context
+- ✅ Runs offline or integrated into pipelines
+
+---
+
+## 🆚 Zentrun vs. Palantir
+
+| Palantir Foundry / AIP | Zentrun (Open Source)             |
+|------------------------|-----------------------------------|
+| Closed-source          | ✅ Transparent & auditable         |
+| Enterprise-only        | ✅ Free & self-hosted & Enterprise |
+| Partly customizable    | ✅ Fully customizable              |
+| Complex setup          | ✅ Prompt-first simplicity         |
+| Cloud-only             | ✅ Works locally or hybrid         |
+
+---
+
+## 💼 From Automation to Monetization
+
+- Package AI Apps for clients or internal ops
+- Sell repeatable workflows with real execution logic
+- Use Zents as plug-in logic across teams
+
+Zentrun lets you **turn prompts into product-grade software**.
+
+---
+
+Zentrun isn’t just an automation tool.
+It’s your open source **decision automation platform**.
+Welcome to Software 3.0.
+
 
 ### Screenshots
 
