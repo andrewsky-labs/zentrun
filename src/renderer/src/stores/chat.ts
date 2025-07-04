@@ -2124,22 +2124,47 @@ How should these agents be executed? Respond with a JSON array of execution step
                           }
                         );
 
-                        // Create an artifact for the code execution result
+
+                        // Check if the result contains an image
+                        const imageMarkerIndex = result.indexOf('__IMAGE_DATA__:');
                         const artifactStore = useArtifactStore();
-                        const artifactId = `js-execution-${nanoid(6)}`;
-                        artifactStore.showArtifact(
-                          {
-                            id: artifactId,
-                            type: 'application/vnd.ant.code',
-                            title: t('executionResult', 'Execution Result'),
-                            content: result,
-                            status: 'loaded'
-                          },
-                          systemMessage.id,
-                          conversationIdForAnswer
-                        );
-                        console.log("artifactId");
-                        console.log(artifactId);
+
+                        if (imageMarkerIndex !== -1) {
+                          // Split the result into text and image parts
+                          const textResult = result.substring(0, imageMarkerIndex).trim();
+                          const imageData = result.substring(imageMarkerIndex + '__IMAGE_DATA__:'.length);
+
+                          // Create an artifact for the image
+                          const artifactId = `py-execution-${nanoid(6)}`;
+                          artifactStore.showArtifact(
+                            {
+                              id: artifactId,
+                              type: 'image/png',
+                              title: t('result', 'Result'),
+                              content: imageData,
+                              status: 'loaded'
+                            },
+                            systemMessage.id,
+                            conversationIdForAnswer
+                          );
+                        } else {
+                          // Create an artifact for the code execution result
+                          const artifactStore = useArtifactStore();
+                          const artifactId = `js-execution-${nanoid(6)}`;
+                          artifactStore.showArtifact(
+                            {
+                              id: artifactId,
+                              type: 'application/vnd.ant.code',
+                              title: t('executionResult', 'Execution Result'),
+                              content: result,
+                              status: 'loaded'
+                            },
+                            systemMessage.id,
+                            conversationIdForAnswer
+                          );
+                          console.log("artifactId");
+                          console.log(artifactId);
+                        }
                       }
                     }
                   }

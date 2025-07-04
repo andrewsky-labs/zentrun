@@ -19,6 +19,7 @@ import { IConfigPresenter } from '@shared/presenter'
 import { getErrorMessageLabels } from '@shared/i18n'
 import { OpenAI } from 'openai'
 import { presenter } from '@/presenter'
+import fs from "fs";
 
 // 定义MCP工具接口
 interface MCPTool {
@@ -935,20 +936,33 @@ export class McpPresenter implements IMCPPresenter {
     } catch (error) {
       console.error('[MCP] Error getting LLM provider information:', error);
     }
-
+    let capturedLogs = [];
     try {
       // Create a new VM instance with sandbox
       const vm = new VM({
         timeout: 50 * 1000 * 1000, // 50 second timeout
         sandbox: {
+
+            log: (...args) => {
+              const msg = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)).join(' ');
+              capturedLogs.push(msg);
+            },
+
           console: {
-            log: (...args: any[]) => {
-              // Capture console.log output
-              return args.map(arg =>
-                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-              ).join(' ')
+
+            log: (...args) => {
+              const msg = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)).join(' ');
+              capturedLogs.push(msg);
             }
           },
+          // console: {
+          //   log: (...args: any[]) => {
+          //     // Capture console.log output
+          //     return args.map(arg =>
+          //       typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+          //     ).join(' ')
+          //   }
+          // },
           setTimeout: (callback: Function, ms: number) => {
             if (ms > 5000) ms = 5000 // Limit setTimeout to 5 seconds
             return setTimeout(callback, ms)
@@ -995,6 +1009,8 @@ export class McpPresenter implements IMCPPresenter {
                 'execa - Process execution library',
                 'lodash - Utility library',
                 'chart.js - Chart generation library',
+                'csv-parser - CSV parse library',
+                'quickchart-js - Chart generation library',
                 'mathjs - Math library'
               ],
               fsModule: {
@@ -1125,133 +1141,133 @@ export class McpPresenter implements IMCPPresenter {
             // List of allowed modules that could be safely mocked
             const safeModules: Record<string, any> = {
               // Safe wrapper around fs module with limited functionality
-              'fs': {
-                // Only allow reading files from specific directories
-                readFileSync: (filePath: string, options?: any) => {
-                  // Convert to absolute path
-                  const absPath = path.resolve(filePath);
-
-                  // Define allowed directories (can be expanded as needed)
-                  const allowedDirs = [
-                    '/tmp',
-                    path.join(os.homedir(), '.config/zentrun')
-                  ];
-
-                  // Check if the path is within allowed directories
-                  const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
-
-                  if (!isAllowed) {
-                    throw new Error(`Access denied: Cannot read from '${filePath}'. Only files in allowed directories can be accessed.`);
-                  }
-
-                  // If allowed, perform the actual read
-                  return fs.readFileSync(absPath, options);
-                },
-
-                // Only allow writing files to specific directories
-                writeFileSync: (filePath: string, data: any, options?: any) => {
-                  // Convert to absolute path
-                  const absPath = path.resolve(filePath);
-
-                  // Define allowed directories for writing
-                  const allowedDirs = [
-                    '/tmp',
-                    path.join(os.homedir(), '.config/zentrun')
-                  ];
-
-                  // Check if the path is within allowed directories
-                  const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
-
-                  if (!isAllowed) {
-                    throw new Error(`Access denied: Cannot write to '${filePath}'. Only files in allowed directories can be modified.`);
-                  }
-
-                  // If allowed, perform the actual write
-                  return fs.writeFileSync(absPath, data, options);
-                },
-
-                // List files in a directory (only in allowed directories)
-                readdirSync: (dirPath: string, options?: any) => {
-                  // Convert to absolute path
-                  const absPath = path.resolve(dirPath);
-
-                  // Define allowed directories
-                  const allowedDirs = [
-                    '/tmp',
-                    path.join(os.homedir(), '.config/zentrun')
-                  ];
-
-                  // Check if the path is within allowed directories
-                  const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
-
-                  if (!isAllowed) {
-                    throw new Error(`Access denied: Cannot read directory '${dirPath}'. Only allowed directories can be accessed.`);
-                  }
-
-                  // If allowed, perform the actual directory read
-                  return fs.readdirSync(absPath, options);
-                },
-
-                // Check if a file exists (only in allowed directories)
-                existsSync: (path: string) => {
-                  // Convert to absolute path
-                  const absPath = path.resolve(path);
-
-                  // Define allowed directories
-                  const allowedDirs = [
-                    '/tmp',
-                    path.join(os.homedir(), '.config/zentrun')
-                  ];
-
-                  // Check if the path is within allowed directories
-                  const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
-
-                  if (!isAllowed) {
-                    throw new Error(`Access denied: Cannot check existence of '${path}'. Only files in allowed directories can be accessed.`);
-                  }
-
-                  // If allowed, perform the actual check
-                  return fs.existsSync(absPath);
-                },
-
-                // List allowed directories for user reference
-                listAllowedDirectories: () => {
-                  return [
-                    '/tmp',
-                    path.join(os.homedir(), '.config/zentrun')
-                  ];
-                }
-              },
-
-              // Safe wrapper around path module
-              'path': {
-                join: path.join,
-                resolve: path.resolve,
-                basename: path.basename,
-                dirname: path.dirname,
-                extname: path.extname,
-                parse: path.parse,
-                format: path.format,
-                isAbsolute: path.isAbsolute,
-                relative: path.relative,
-                normalize: path.normalize,
-                sep: path.sep
-              },
-
-              // Safe wrapper around os module with limited functionality
-              'os': {
-                platform: require('os').platform,
-                arch: require('os').arch,
-                cpus: require('os').cpus,
-                freemem: require('os').freemem,
-                totalmem: require('os').totalmem,
-                homedir: require('os').homedir,
-                tmpdir: require('os').tmpdir,
-                hostname: require('os').hostname,
-                type: require('os').type,
-                release: require('os').release,
-                EOL: require('os').EOL
-              },
+              // 'fs': {
+              //   // Only allow reading files from specific directories
+              //   readFileSync: (filePath: string, options?: any) => {
+              //     // Convert to absolute path
+              //     const absPath = path.resolve(filePath);
+              //
+              //     // Define allowed directories (can be expanded as needed)
+              //     const allowedDirs = [
+              //       '/tmp',
+              //       path.join(os.homedir(), '.config/zentrun')
+              //     ];
+              //
+              //     // Check if the path is within allowed directories
+              //     const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
+              //
+              //     if (!isAllowed) {
+              //       throw new Error(`Access denied: Cannot read from '${filePath}'. Only files in allowed directories can be accessed.`);
+              //     }
+              //
+              //     // If allowed, perform the actual read
+              //     return fs.readFileSync(absPath, options);
+              //   },
+              //
+              //   // Only allow writing files to specific directories
+              //   writeFileSync: (filePath: string, data: any, options?: any) => {
+              //     // Convert to absolute path
+              //     const absPath = path.resolve(filePath);
+              //
+              //     // Define allowed directories for writing
+              //     const allowedDirs = [
+              //       '/tmp',
+              //       path.join(os.homedir(), '.config/zentrun')
+              //     ];
+              //
+              //     // Check if the path is within allowed directories
+              //     const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
+              //
+              //     if (!isAllowed) {
+              //       throw new Error(`Access denied: Cannot write to '${filePath}'. Only files in allowed directories can be modified.`);
+              //     }
+              //
+              //     // If allowed, perform the actual write
+              //     return fs.writeFileSync(absPath, data, options);
+              //   },
+              //
+              //   // List files in a directory (only in allowed directories)
+              //   readdirSync: (dirPath: string, options?: any) => {
+              //     // Convert to absolute path
+              //     const absPath = path.resolve(dirPath);
+              //
+              //     // Define allowed directories
+              //     const allowedDirs = [
+              //       '/tmp',
+              //       path.join(os.homedir(), '.config/zentrun')
+              //     ];
+              //
+              //     // Check if the path is within allowed directories
+              //     const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
+              //
+              //     if (!isAllowed) {
+              //       throw new Error(`Access denied: Cannot read directory '${dirPath}'. Only allowed directories can be accessed.`);
+              //     }
+              //
+              //     // If allowed, perform the actual directory read
+              //     return fs.readdirSync(absPath, options);
+              //   },
+              //
+              //   // Check if a file exists (only in allowed directories)
+              //   existsSync: (path: string) => {
+              //     // Convert to absolute path
+              //     const absPath = path.resolve(path);
+              //
+              //     // Define allowed directories
+              //     const allowedDirs = [
+              //       '/tmp',
+              //       path.join(os.homedir(), '.config/zentrun')
+              //     ];
+              //
+              //     // Check if the path is within allowed directories
+              //     const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
+              //
+              //     if (!isAllowed) {
+              //       throw new Error(`Access denied: Cannot check existence of '${path}'. Only files in allowed directories can be accessed.`);
+              //     }
+              //
+              //     // If allowed, perform the actual check
+              //     return fs.existsSync(absPath);
+              //   },
+              //
+              //   // List allowed directories for user reference
+              //   listAllowedDirectories: () => {
+              //     return [
+              //       '/tmp',
+              //       path.join(os.homedir(), '.config/zentrun')
+              //     ];
+              //   }
+              // },
+              //
+              // // Safe wrapper around path module
+              // 'path': {
+              //   join: path.join,
+              //   resolve: path.resolve,
+              //   basename: path.basename,
+              //   dirname: path.dirname,
+              //   extname: path.extname,
+              //   parse: path.parse,
+              //   format: path.format,
+              //   isAbsolute: path.isAbsolute,
+              //   relative: path.relative,
+              //   normalize: path.normalize,
+              //   sep: path.sep
+              // },
+              //
+              // // Safe wrapper around os module with limited functionality
+              // 'os': {
+              //   platform: require('os').platform,
+              //   arch: require('os').arch,
+              //   cpus: require('os').cpus,
+              //   freemem: require('os').freemem,
+              //   totalmem: require('os').totalmem,
+              //   homedir: require('os').homedir,
+              //   tmpdir: require('os').tmpdir,
+              //   hostname: require('os').hostname,
+              //   type: require('os').type,
+              //   release: require('os').release,
+              //   EOL: require('os').EOL
+              // },
 
               // Safe wrapper around crypto module with limited functionality
               'crypto': {
@@ -1265,6 +1281,9 @@ export class McpPresenter implements IMCPPresenter {
               'buffer': {
                 Buffer: Buffer
               },
+              'fs': require('fs'),
+              'path': require('path'),
+              'os': require('os'),
 
               // Additional libraries as requested
               'better-sqlite3': require('better-sqlite3'),
@@ -1279,9 +1298,12 @@ export class McpPresenter implements IMCPPresenter {
               'csv-parse': require('csv-parse'),
               'json2csv': require('json2csv'),
               'vm2': require('vm2'),
+              'fs': require('fs'),
               'execa': require('execa'),
               'lodash': require('lodash'),
               'chart.js': require('chart.js'),
+              'csv-parser': require('csv-parser'),
+              'quickchart-js': require('quickchart-js'),
               'mathjs': require('mathjs')
             };
 
@@ -1295,54 +1317,53 @@ export class McpPresenter implements IMCPPresenter {
         },
         eval: false,      // Don't allow eval
         wasm: false,      // Don't allow WebAssembly
-        allowAsync: true  // Allow async/await
+        allowAsync: true,  // Allow async/await
       })
 
       // Wrap the code to capture console.log output and handle errors properly
-      const wrappedCode = `
-        const logs = [];
-        const originalConsoleLog = console.log;
-        console.log = function(...args) {
-          const result = originalConsoleLog(...args);
-          logs.push(result);
-          return result;
-        };
-
-        (async function() {
-          try {
-            // Execute the user code in an async IIFE
-            const result = await (async () => {
-              ${code}
-            })();
-
-            // Handle the result
-            if (result !== undefined) {
-              logs.push(typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result));
-            }
-          } catch (error) {
-            // Catch and log any errors that occur during execution
-            logs.push(error.message);
-            console.log('Error executing code:', error.message);
-          }
-
-          // Always return logs, even if there was an error
-          return logs;
-        })();
-      `;
+      const wrappedCode = code;
 
       // Run the code in the VM and await the result
-      const result = await vm.run(wrappedCode);
-
+      // const result = await vm.run(wrappedCode);
+      await vm.run(wrappedCode);
+      const result = capturedLogs;
+      console.log('Result:', result);
       // Format the result
+      let formattedResult = '';
       if (Array.isArray(result)) {
-        return result.join('\n');
+        formattedResult = result.join('\n');
       } else if (result !== undefined) {
-        return typeof result === 'object'
+        formattedResult = typeof result === 'object'
           ? JSON.stringify(result, null, 2)
           : String(result);
+      } else {
+        formattedResult = 'Code executed successfully with no output';
       }
 
-      return 'Code executed successfully with no output';
+      // Check if a figure was captured
+      const hasFigure = formattedResult.includes('__FIGURE_CAPTURED__');
+      formattedResult = formattedResult.replace('__FIGURE_CAPTURED__', '').trim();
+
+      // If there's no text output but a figure was captured
+      if (!formattedResult && hasFigure) {
+        formattedResult = 'Figure generated successfully';
+      }
+
+      // If a figure was captured, read it and convert to base64
+      const outputImageFile = path.join(dataDir, 'output_figure.png');
+      if (hasFigure && fs.existsSync(outputImageFile)) {
+        try {
+          const imageData = fs.readFileSync(outputImageFile);
+          const base64Image = imageData.toString('base64');
+
+          // Append the base64 image data to the result with a special marker
+          formattedResult += `\n\n__IMAGE_DATA__:data:image/png;base64,${base64Image}`;
+        } catch (imageError) {
+          console.error(`[MCP] Failed to process output image: ${imageError.message}`);
+        }
+      }
+
+      return formattedResult;
     } catch (error) {
       console.error('[MCP] Error executing JavaScript code:', error);
       return `Error executing code: ${error.message}`;
@@ -1495,24 +1516,27 @@ export class McpPresenter implements IMCPPresenter {
           // Append the base64 image data to the result with a special marker
           result += `\n\n__IMAGE_DATA__:data:image/png;base64,${base64Image}`;
 
-          // Clean up the image file
-          fs.unlinkSync(outputImageFile);
+          // // Clean up the image file
+          // fs.unlinkSync(outputImageFile);
         } catch (imageError) {
           console.error(`[MCP] Failed to process output image: ${imageError.message}`);
         }
       }
 
-      // Clean up the temporary file
-      try {
-        fs.unlinkSync(tempPythonFile);
-      } catch (cleanupError) {
-        console.error(`[MCP] Failed to clean up temporary Python file: ${cleanupError.message}`);
-      }
+      // // Clean up the temporary file
+      // try {
+      //   fs.unlinkSync(tempPythonFile);
+      // } catch (cleanupError) {
+      //   console.error(`[MCP] Failed to clean up temporary Python file: ${cleanupError.message}`);
+      // }
 
-      // Return the result
-      if (stderr) {
-        return `${stderr}`;
-      }
+      // // Return the result
+      // if (stderr) {
+      //   return `${stderr}`;
+      // }
+
+      console.log("result");
+      console.log(result);
 
       return result || 'Code executed successfully with no output';
     } catch (error) {
@@ -1576,17 +1600,17 @@ export class McpPresenter implements IMCPPresenter {
                 }
               );
 
-              // Clean up the temporary files after successful retry
-              try {
-                if (fs.existsSync(tempPythonFile)) {
-                  fs.unlinkSync(tempPythonFile);
-                }
-                if (fs.existsSync(outputImageFile)) {
-                  fs.unlinkSync(outputImageFile);
-                }
-              } catch (cleanupError) {
-                console.error(`[MCP] Failed to clean up temporary files: ${cleanupError.message}`);
-              }
+              // // Clean up the temporary files after successful retry
+              // try {
+              //   if (fs.existsSync(tempPythonFile)) {
+              //     fs.unlinkSync(tempPythonFile);
+              //   }
+              //   if (fs.existsSync(outputImageFile)) {
+              //     fs.unlinkSync(outputImageFile);
+              //   }
+              // } catch (cleanupError) {
+              //   console.error(`[MCP] Failed to clean up temporary files: ${cleanupError.message}`);
+              // }
 
               // Check if a figure was captured in the retry
               const hasFigure = retryStdout.includes('__FIGURE_CAPTURED__');
@@ -1594,7 +1618,7 @@ export class McpPresenter implements IMCPPresenter {
 
               // If there's no text output but a figure was captured
               if (!result && hasFigure) {
-                result = 'Figure generated successfully';
+                result = 'Figure generated successfully3';
               }
 
               // If a figure was captured, read it and convert to base64
@@ -1606,8 +1630,8 @@ export class McpPresenter implements IMCPPresenter {
                   // Append the base64 image data to the result with a special marker
                   result += `\n\n__IMAGE_DATA__:data:image/png;base64,${base64Image}`;
 
-                  // Clean up the image file
-                  fs.unlinkSync(outputImageFile);
+                  // // Clean up the image file
+                  // fs.unlinkSync(outputImageFile);
                 } catch (imageError) {
                   console.error(`[MCP] Failed to process output image: ${imageError.message}`);
                 }
@@ -1634,12 +1658,12 @@ export class McpPresenter implements IMCPPresenter {
 
       // Clean up the temporary files in case of error
       try {
-        if (fs.existsSync(tempPythonFile)) {
-          fs.unlinkSync(tempPythonFile);
-        }
-        if (fs.existsSync(outputImageFile)) {
-          fs.unlinkSync(outputImageFile);
-        }
+        // if (fs.existsSync(tempPythonFile)) {
+        //   fs.unlinkSync(tempPythonFile);
+        // }
+        // if (fs.existsSync(outputImageFile)) {
+        //   fs.unlinkSync(outputImageFile);
+        // }
       } catch (cleanupError) {
         console.error(`[MCP] Failed to clean up temporary files: ${cleanupError.message}`);
       }

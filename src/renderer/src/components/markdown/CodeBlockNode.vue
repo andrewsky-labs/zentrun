@@ -570,6 +570,7 @@ const runCode = async () => {
 
   isRunningCode.value = true
   runCodeResult.value = ''
+  let imageMarkerIndex = -1;
 
   try {
     // Always get the latest code from the editor if it exists, otherwise use currentCode
@@ -598,12 +599,19 @@ const runCode = async () => {
     if (isJavaScript.value) {
       // Execute JavaScript code
       result = await mcpPresenter.runJavaScriptCode(codeToRun)
+      imageMarkerIndex = result.indexOf('__IMAGE_DATA__:')
     } else if (isPython.value) {
       // Execute Python code
       result = await mcpPresenter.runPythonCode(codeToRun)
 
+      console.log("codeToRun result:", result);
       // Check if the result contains an image
-      const imageMarkerIndex = result.indexOf('__IMAGE_DATA__:')
+      imageMarkerIndex = result.indexOf('__IMAGE_DATA__:')
+      console.log("imageMarkerIndex", imageMarkerIndex);
+    }
+
+
+
 
       if (imageMarkerIndex !== -1) {
         // Split the result into text and image parts
@@ -611,7 +619,7 @@ const runCode = async () => {
         const imageData = result.substring(imageMarkerIndex + '__IMAGE_DATA__:'.length)
 
         // Set the text result for display
-        result = textResult || 'Figure generated successfully'
+        result = textResult || 'Figure generated successfully1'
 
         // Create an artifact for the image
         const artifactId = `py-execution-${nanoid(6)}`
@@ -619,34 +627,34 @@ const runCode = async () => {
           {
             id: artifactId,
             type: 'image/png',
-            title: 'Python Visualization Result',
+            title: 'Visualization Result',
             content: imageData,
             status: 'loaded'
           },
           props.messageId,
           props.threadId
         )
+      } else {
+        // Display the result
+        runCodeResult.value = result
+
+        // Create an artifact for the code execution result
+        const artifactId = `code-execution-${nanoid(6)}`
+        artifactStore.showArtifact(
+          {
+            id: artifactId,
+            type: 'application/vnd.ant.code',
+            title: isJavaScript.value
+              ? 'JavaScript Execution Result'
+              : 'Python Execution Result',
+            content: result,
+            status: 'loaded'
+          },
+          props.messageId,
+          props.threadId
+        )
+
       }
-    }
-
-    // Display the result
-    runCodeResult.value = result
-
-    // Create an artifact for the code execution result
-    const artifactId = `code-execution-${nanoid(6)}`
-    artifactStore.showArtifact(
-      {
-        id: artifactId,
-        type: 'application/vnd.ant.code',
-        title: isJavaScript.value
-          ? 'JavaScript Execution Result'
-          : 'Python Execution Result',
-        content: result,
-        status: 'loaded'
-      },
-      props.messageId,
-      props.threadId
-    )
   } catch (error) {
     runCodeResult.value = `Error: ${error.message}`
   } finally {

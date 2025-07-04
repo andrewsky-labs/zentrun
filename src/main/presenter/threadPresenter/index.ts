@@ -588,9 +588,92 @@ System capabilities:
 - Utilize various tools to complete user-assigned tasks step by step
 - For Python code, please be careful with the placement of spaces or tabs, as incorrect indentation will immediately cause errors.
 - When generating and returning code, always indicate which programming language or framework it was written in.
+- When using matplotlib for data visualization, instead of using plt.show(), save the image with plt.savefig(f"{os.path.expanduser('~')}/.config/zentrun/output_figure.png") and then print("__FIGURE_CAPTURED__") to the console. Don't forget to "import os".
+- If user wants to visulize data in python, please use matplotlib.
+- If user wants to visulize data in nodejs, please use quickchart-js.
+- If user wants to visulize data and the user has python interpreter, please use python. Otherwise, please use nodejs.
+- If you answer with multiple codes, please think that those codes are not connected so you need to import libaries in each code blocks.
+- If you answer codes in contuined questions, please think that your previous codes are not connected so you need to import libaries in each code blocks.
+- I mean code block is like below.
+
 Example:
 \`\`\`python
 \`\`\`
+
+- I mean use quickchart-js for data visualization like this below.
+
+\`\`\`javascript
+
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const csv = require('csv-parser');
+const QuickChart = require('quickchart-js');
+
+const filePath = "/home/dslabglobal/Downloads/marketing_campaign_dataset.csv";
+
+(async () => {
+  const conversionSums = {};
+  const counts = {};
+
+  // 1. CSV 읽고 집계
+  await new Promise((resolve, reject) => {
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on('data', (row) => {
+        const type = row["Campaign_Type"];
+        const rate = parseFloat(row["Conversion_Rate"]);
+        if (!isNaN(rate)) {
+          conversionSums[type] = (conversionSums[type] || 0) + rate;
+          counts[type] = (counts[type] || 0) + 1;
+        }
+      })
+      .on('end', resolve)
+      .on('error', reject);
+  });
+
+  const data = Object.entries(conversionSums)
+    .map(([type, sum]) => ({ type, avg: sum / counts[type] }))
+    .sort((a, b) => b.avg - a.avg);
+
+  const labels = data.map(d => d.type);
+  const values = data.map(d => parseFloat(d.avg.toFixed(2)));
+
+  // 2. QuickChart로 차트 생성
+  const chart = new QuickChart();
+  chart.setConfig({
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Avg Conversion Rate',
+        data: values,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+      }],
+    },
+    options: {
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: 'Average Conversion Rate by Campaign Type' },
+      },
+      scales: {
+        x: { ticks: { maxRotation: 45, minRotation: 45 } },
+        y: { beginAtZero: true },
+      },
+    },
+  });
+  chart.setWidth(800).setHeight(500).setBackgroundColor('white');
+
+  // 3. 저장
+  const outputPath = path.join(os.homedir(), '.config/zentrun/output_figure.png');
+  await chart.toFile(outputPath);
+  console.log(outputPath);
+  console.log('__FIGURE_CAPTURED__');
+})();
+
+\`\`\`
+
+
 
 Please generate Python code that uses the following environment variables to call an LLM:
 
