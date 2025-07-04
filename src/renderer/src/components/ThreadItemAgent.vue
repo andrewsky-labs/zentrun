@@ -2,7 +2,7 @@
   <div class="flex items-center px-2 py-1 hover:bg-accent rounded select-none group">
     <div class="flex items-center flex-1 cursor-pointer" @click="toggleFolder">
       <Icon :icon="thread.expanded ? 'lucide:chevron-down' : 'lucide:chevron-right'" class="w-4 h-4 mr-1" />
-      <Icon icon="lucide:bot" class="w-4 h-4 mr-2" />
+      <Icon icon="lucide:app-window" class="w-4 h-4 mr-2" />
 
 <!--        <img :src="getImageUrl(thread.thumbnail)" class="w-8 h-8 mr-2" style="border-radius: 10px" />-->
 
@@ -78,8 +78,8 @@
   <Dialog :open="showPreview" @update:open="showPreview = $event">
     <DialogContent class="max-w-4xl h-[80vh]">
       <DialogHeader>
-        <DialogTitle>{{ t('agent.preview.title', 'Execute Agent') }}</DialogTitle>
-        <DialogDescription>{{ t('agent.preview.description', 'Review and execute your Agent') }}</DialogDescription>
+        <DialogTitle>{{ t('agent.preview.title', 'Execute App') }}</DialogTitle>
+        <DialogDescription>{{ t('agent.preview.description', 'Review and execute your app') }}</DialogDescription>
       </DialogHeader>
 
       <div class="flex-1 overflow-y-auto p-4 ">

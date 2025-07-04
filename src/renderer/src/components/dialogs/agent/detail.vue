@@ -1794,7 +1794,7 @@ async function loadTreeData() {
       const standaloneAgentsNode = {
         id: 'standalone-agents',
         type: 'folder',
-        name: 'Agents',
+        name: 'Apps',
         expanded: true,
         children: []
       }

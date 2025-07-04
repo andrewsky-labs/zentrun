@@ -143,7 +143,7 @@
                     <Icon :icon="agent.expanded ? 'lucide:chevron-down' : 'lucide:chevron-right'" class="w-4 h-4 mr-1" />
                     <img v-if="agent.thumbnail" :src="getImageUrl(agent.thumbnail)" class="w-8 h-8 mr-2" style="border-radius: 10px" />
                     <span v-else class="w-8 h-8 mr-2 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Icon icon="lucide:bot" class="w-4 h-4 text-blue-500" />
+                      <Icon icon="lucide:app-window" class="w-4 h-4 text-blue-500" />
                     </span>
                     <span class="font-bold text-xs">{{ agent.name }}</span>
                     <Icon v-if="agent.is_public" icon="lucide:globe" class="w-3 h-3 ml-1 text-blue-500" :title="t('public')" />

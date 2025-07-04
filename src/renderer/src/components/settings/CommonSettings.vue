@@ -56,7 +56,7 @@
       <!-- 搜索助手模型选择 -->
       <div class="flex flex-row p-2 items-center gap-2 px-2">
         <span class="flex flex-row items-center gap-2 flex-grow w-full">
-          <Icon icon="lucide:bot" class="w-4 h-4 text-muted-foreground" />
+          <Icon icon="lucide:app-window" class="w-4 h-4 text-muted-foreground" />
           <span class="text-sm font-medium">{{ t('settings.common.searchAssistantModel') }}</span>
         </span>
         <div class="flex-shrink-0 min-w-64 max-w-96">

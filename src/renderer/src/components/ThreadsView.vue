@@ -31,7 +31,7 @@
         class="w-full text-xs text-muted-foreground justify-start gap-2 mt-2"
         @click="showAgentAddModal=true"
       >
-        <Icon icon="lucide:bot" class="h-4 w-4" />
+        <Icon icon="lucide:app-window" class="h-4 w-4" />
         <span>{{ t('common.newAgent') }}</span>
       </Button>
       <Button
@@ -162,7 +162,7 @@
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem @select="showAddAgentDialogOrganization(item)">
-                    <Icon icon="lucide:bot-plus" class="mr-2 h-4 w-4"/>
+                    <Icon icon="lucide:plus" class="mr-2 h-4 w-4"/>
                     <span>{{ t('thread.actions.addAgent') }}</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem @select="showRenameDialogOrganization(item)">
@@ -975,7 +975,7 @@ async function loadTreeData() {
       const standaloneAgentsNode = {
         id: 'standalone-agents',
         type: 'folder',
-        name: 'Agents',
+        name: 'Apps',
         expanded: true,
         children: []
       }

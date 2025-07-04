@@ -86,7 +86,7 @@
       <div v-if="!isLoading && !error && agents.length > 0" class="mb-12">
         <div class="flex justify-between items-center mb-4">
           <div>
-            <h2 class="text-2xl font-semibold">{{ t('agents') }}</h2>
+            <h2 class="text-2xl font-semibold">{{ t('apps') }}</h2>
             <p class="text-gray-500">{{ t('discover-ai-agents-with-specialized-capabilities') }}</p>
           </div>
           <Button @click="showAgentsDialog = true" class="">
