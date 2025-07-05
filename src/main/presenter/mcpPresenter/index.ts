@@ -881,7 +881,18 @@ export class McpPresenter implements IMCPPresenter {
     const fs = require('fs');
     const path = require('path');
     const os = require('os');
-    const dataDir = path.join(os.homedir(), '.config/zentrun');
+    const dataDir = path.join(os.homedir(), '.config/Zentrun');
+
+    // Get active conversation ID for image file naming
+    let conversation_id = 'default';
+    try {
+      const activeConversation = await presenter.threadPresenter.getActiveConversation();
+      if (activeConversation) {
+        conversation_id = activeConversation.id;
+      }
+    } catch (error) {
+      console.error('[MCP] Error getting active conversation ID:', error);
+    }
 
     if (!fs.existsSync(dataDir)) {
       try {
@@ -1015,7 +1026,7 @@ export class McpPresenter implements IMCPPresenter {
               ],
               fsModule: {
                 description: 'File system operations (restricted to safe directories)',
-                allowedDirectories: ['/tmp', path.join(os.homedir(), '.config/zentrun')],
+                allowedDirectories: ['/tmp', path.join(os.homedir(), '.config/Zentrun')],
                 functions: [
                   'readFileSync(path, options) - Read a file synchronously',
                   'writeFileSync(path, data, options) - Write to a file synchronously',
@@ -1108,13 +1119,13 @@ export class McpPresenter implements IMCPPresenter {
                 "const fs = require('fs');",
                 "const path = require('path');",
                 "const os = require('os');",
-                "const filePath = path.join(os.homedir(), '.config/zentrun', 'test.txt');",
+                "const filePath = path.join(os.homedir(), '.config/Zentrun', 'test.txt');",
                 "fs.writeFileSync(filePath, 'Hello, world!');",
                 "console.log(fs.readFileSync(filePath, 'utf8'));",
                 "",
                 "// Use fs-extra for enhanced file operations",
                 "const fse = require('fs-extra');",
-                "const dataDir = path.join(os.homedir(), '.config/zentrun');",
+                "const dataDir = path.join(os.homedir(), '.config/Zentrun');",
                 "fse.ensureDirSync(path.join(dataDir, 'subdir'));",
                 "fse.writeJsonSync(path.join(dataDir, 'config.json'), { setting: 'value' });",
                 "console.log(fse.readJsonSync(path.join(dataDir, 'config.json')));"
@@ -1150,7 +1161,7 @@ export class McpPresenter implements IMCPPresenter {
               //     // Define allowed directories (can be expanded as needed)
               //     const allowedDirs = [
               //       '/tmp',
-              //       path.join(os.homedir(), '.config/zentrun')
+              //       path.join(os.homedir(), '.config/Zentrun')
               //     ];
               //
               //     // Check if the path is within allowed directories
@@ -1172,7 +1183,7 @@ export class McpPresenter implements IMCPPresenter {
               //     // Define allowed directories for writing
               //     const allowedDirs = [
               //       '/tmp',
-              //       path.join(os.homedir(), '.config/zentrun')
+              //       path.join(os.homedir(), '.config/Zentrun')
               //     ];
               //
               //     // Check if the path is within allowed directories
@@ -1194,7 +1205,7 @@ export class McpPresenter implements IMCPPresenter {
               //     // Define allowed directories
               //     const allowedDirs = [
               //       '/tmp',
-              //       path.join(os.homedir(), '.config/zentrun')
+              //       path.join(os.homedir(), '.config/Zentrun')
               //     ];
               //
               //     // Check if the path is within allowed directories
@@ -1216,7 +1227,7 @@ export class McpPresenter implements IMCPPresenter {
               //     // Define allowed directories
               //     const allowedDirs = [
               //       '/tmp',
-              //       path.join(os.homedir(), '.config/zentrun')
+              //       path.join(os.homedir(), '.config/Zentrun')
               //     ];
               //
               //     // Check if the path is within allowed directories
@@ -1234,7 +1245,7 @@ export class McpPresenter implements IMCPPresenter {
               //   listAllowedDirectories: () => {
               //     return [
               //       '/tmp',
-              //       path.join(os.homedir(), '.config/zentrun')
+              //       path.join(os.homedir(), '.config/Zentrun')
               //     ];
               //   }
               // },
@@ -1281,7 +1292,7 @@ export class McpPresenter implements IMCPPresenter {
               'buffer': {
                 Buffer: Buffer
               },
-              'fs': require('fs'),
+              // 'fs': require('fs'),
               'path': require('path'),
               'os': require('os'),
 
@@ -1340,24 +1351,63 @@ export class McpPresenter implements IMCPPresenter {
         formattedResult = 'Code executed successfully with no output';
       }
 
-      // Check if a figure was captured
-      const hasFigure = formattedResult.includes('__FIGURE_CAPTURED__');
-      formattedResult = formattedResult.replace('__FIGURE_CAPTURED__', '').trim();
-
-      // If there's no text output but a figure was captured
-      if (!formattedResult && hasFigure) {
-        formattedResult = 'Figure generated successfully';
+      // Check for image files in the .config/Zentrun directory that match the pattern conversation_id_*.png
+      const imageFiles = [];
+      try {
+        const files = fs.readdirSync(dataDir);
+        for (const file of files) {
+          if (file.startsWith(`${conversation_id}_`) && file.endsWith('.png')) {
+            imageFiles.push(file);
+          }
+        }
+      } catch (error) {
+        console.error(`[MCP] Error reading directory: ${error.message}`);
       }
 
-      // If a figure was captured, read it and convert to base64
+      // If image files were found, read them and convert to base64
+      if (imageFiles.length > 0) {
+        // Sort the image files by their numeric part to maintain order
+        imageFiles.sort((a, b) => {
+          const numA = parseInt(a.split('_')[1].split('.')[0]);
+          const numB = parseInt(b.split('_')[1].split('.')[0]);
+          return numA - numB;
+        });
+
+        // If there's no text output but images were found
+        if (!formattedResult) {
+          formattedResult = `${imageFiles.length} figure(s) generated successfully`;
+        }
+
+        // Process each image file
+        for (const imageFile of imageFiles) {
+          try {
+            const imagePath = path.join(dataDir, imageFile);
+            const imageData = fs.readFileSync(imagePath);
+            const base64Image = imageData.toString('base64');
+
+            // Append the base64 image data to the result with a special marker
+            formattedResult += `\n\n__IMAGE_DATA__:data:image/png;base64,${base64Image}`;
+
+            // Clean up the image file after processing
+            fs.unlinkSync(imagePath);
+          } catch (imageError) {
+            console.error(`[MCP] Failed to process image file ${imageFile}: ${imageError.message}`);
+          }
+        }
+      }
+
+      // For backward compatibility, also check for the old output_figure.png
       const outputImageFile = path.join(dataDir, 'output_figure.png');
-      if (hasFigure && fs.existsSync(outputImageFile)) {
+      if (fs.existsSync(outputImageFile)) {
         try {
           const imageData = fs.readFileSync(outputImageFile);
           const base64Image = imageData.toString('base64');
 
           // Append the base64 image data to the result with a special marker
           formattedResult += `\n\n__IMAGE_DATA__:data:image/png;base64,${base64Image}`;
+
+          // Clean up the image file after processing
+          fs.unlinkSync(outputImageFile);
         } catch (imageError) {
           console.error(`[MCP] Failed to process output image: ${imageError.message}`);
         }
@@ -1414,16 +1464,16 @@ export class McpPresenter implements IMCPPresenter {
 
     const execPromise = promisify(exec);
 
-    const dataDir = path.join(os.homedir(), '.config/zentrun');
+    const dataDir = path.join(os.homedir(), '.config/Zentrun');
     const tempPythonFile = path.join(dataDir, 'temp_script.py');
     const outputImageFile = path.join(dataDir, 'output_figure.png');
 
     // Get active conversation ID for image file naming
-    let chat_id = 'default';
+    let conversation_id = 'default';
     try {
       const activeConversation = await presenter.threadPresenter.getActiveConversation();
       if (activeConversation) {
-        chat_id = activeConversation.id;
+        conversation_id = activeConversation.id;
       }
     } catch (error) {
       console.error('[MCP] Error getting active conversation ID:', error);
@@ -1487,10 +1537,10 @@ export class McpPresenter implements IMCPPresenter {
 
     try {
       const modifiedCode = code;
-      console.log("code");
-      console.log(code);
-      console.log("modifiedCode");
-      console.log(modifiedCode);
+      // console.log("code");
+      // console.log(code);
+      // console.log("modifiedCode");
+      // console.log(modifiedCode);
 
       // Write the modified Python code to a temporary file
       fs.writeFileSync(tempPythonFile, modifiedCode);
@@ -1527,20 +1577,60 @@ export class McpPresenter implements IMCPPresenter {
       }
 
 
-      console.log("stdout", stdout);
-      console.log("stderr", stderr);
+      // console.log("stdout", stdout);
+      // console.log("stderr", stderr);
+      console.log("conversation_id", conversation_id);
 
-      // Check if a figure was captured
-      const hasFigure = stdout.includes('__FIGURE_CAPTURED__');
+      // Remove any __FIGURE_CAPTURED__ markers from the output for backward compatibility
       let result = stdout.replace('__FIGURE_CAPTURED__', '').trim();
 
-      // If there's no text output but a figure was captured
-      if (!result && hasFigure) {
-        result = 'Figure generated successfully';
+      // Check for image files in the .config/Zentrun directory that match the pattern conversation_id_*.png
+      const imageFiles = [];
+      try {
+        const files = fs.readdirSync(dataDir);
+        for (const file of files) {
+          if (file.startsWith(`${conversation_id}_`) && file.endsWith('.png')) {
+            imageFiles.push(file);
+          }
+        }
+      } catch (error) {
+        console.error(`[MCP] Error reading directory: ${error.message}`);
       }
 
-      // If a figure was captured, read it and convert to base64
-      if (hasFigure && fs.existsSync(outputImageFile)) {
+      // If image files were found, read them and convert to base64
+      if (imageFiles.length > 0) {
+        // Sort the image files by their numeric part to maintain order
+        imageFiles.sort((a, b) => {
+          const numA = parseInt(a.split('_')[1].split('.')[0]);
+          const numB = parseInt(b.split('_')[1].split('.')[0]);
+          return numA - numB;
+        });
+
+        // If there's no text output but images were found
+        if (!result) {
+          result = `${imageFiles.length} figure(s) generated successfully`;
+        }
+
+        // Process each image file
+        for (const imageFile of imageFiles) {
+          try {
+            const imagePath = path.join(dataDir, imageFile);
+            const imageData = fs.readFileSync(imagePath);
+            const base64Image = imageData.toString('base64');
+
+            // Append the base64 image data to the result with a special marker
+            result += `\n\n__IMAGE_DATA__:data:image/png;base64,${base64Image}`;
+
+            // Clean up the image file after processing
+            fs.unlinkSync(imagePath);
+          } catch (imageError) {
+            console.error(`[MCP] Failed to process image file ${imageFile}: ${imageError.message}`);
+          }
+        }
+      }
+
+      // For backward compatibility, also check for the old output_figure.png
+      if (fs.existsSync(outputImageFile)) {
         try {
           const imageData = fs.readFileSync(outputImageFile);
           const base64Image = imageData.toString('base64');
@@ -1548,8 +1638,8 @@ export class McpPresenter implements IMCPPresenter {
           // Append the base64 image data to the result with a special marker
           result += `\n\n__IMAGE_DATA__:data:image/png;base64,${base64Image}`;
 
-          // // Clean up the image file
-          // fs.unlinkSync(outputImageFile);
+          // Clean up the image file after processing
+          fs.unlinkSync(outputImageFile);
         } catch (imageError) {
           console.error(`[MCP] Failed to process output image: ${imageError.message}`);
         }
@@ -1567,8 +1657,8 @@ export class McpPresenter implements IMCPPresenter {
       //   return `${stderr}`;
       // }
 
-      console.log("result");
-      console.log(result);
+      // console.log("result");
+      // console.log(result);
 
       return result || 'Code executed successfully with no output';
     } catch (error) {
@@ -1611,78 +1701,80 @@ export class McpPresenter implements IMCPPresenter {
             console.error(`[MCP] Module installation error: ${installStderr}`);
           }
 
+          this.runPythonCode(code);
+
           // If installation was successful, retry running the code
-          if (!installStderr || !installStderr.includes('ERROR')) {
-            console.log(`[MCP] Retrying Python code execution after installing ${missingModule}`);
-
-            // Retry executing the Python code
-            try {
-              const { stdout: retryStdout, stderr: retryStderr } = await execPromise(
-                `"${pythonInterpreterPath}" "${tempPythonFile}"`,
-                {
-                  timeout: 50000 * 1000, // 50 second timeout
-                  env: {
-                    ...process.env,
-                    LLM_PROVIDER_NAME: llmProviderName,
-                    LLM_PROVIDER_TYPE: llmProviderType,
-                    LLM_MODEL_ID: llmModelId,
-                    LLM_BASE_URL: llmBaseUrl,
-                    LLM_API_KEY: llmApiKey
-                  }
-                }
-              );
-
-              // // Clean up the temporary files after successful retry
-              // try {
-              //   if (fs.existsSync(tempPythonFile)) {
-              //     fs.unlinkSync(tempPythonFile);
-              //   }
-              //   if (fs.existsSync(outputImageFile)) {
-              //     fs.unlinkSync(outputImageFile);
-              //   }
-              // } catch (cleanupError) {
-              //   console.error(`[MCP] Failed to clean up temporary files: ${cleanupError.message}`);
-              // }
-
-              // Check if a figure was captured in the retry
-              const hasFigure = retryStdout.includes('__FIGURE_CAPTURED__');
-              let result = retryStdout.replace('__FIGURE_CAPTURED__', '').trim();
-
-              // If there's no text output but a figure was captured
-              if (!result && hasFigure) {
-                result = 'Figure generated successfully3';
-              }
-
-              // If a figure was captured, read it and convert to base64
-              if (hasFigure && fs.existsSync(outputImageFile)) {
-                try {
-                  const imageData = fs.readFileSync(outputImageFile);
-                  const base64Image = imageData.toString('base64');
-
-                  // Append the base64 image data to the result with a special marker
-                  result += `\n\n__IMAGE_DATA__:data:image/png;base64,${base64Image}`;
-
-                  // // Clean up the image file
-                  // fs.unlinkSync(outputImageFile);
-                } catch (imageError) {
-                  console.error(`[MCP] Failed to process output image: ${imageError.message}`);
-                }
-              }
-
-              // Return the result of the retry
-              if (retryStderr) {
-                return `${retryStderr}`;
-              }
-
-              return result || 'Code executed successfully with no output';
-            } catch (retryError) {
-              // If retry fails, continue with normal error handling
-              console.error('[MCP] Retry after module installation failed:', retryError);
-              stdout = retryError.stdout || stdout;
-              stderr = retryError.stderr || stderr;
-              error = retryError;
-            }
-          }
+          // if (!installStderr || !installStderr.includes('ERROR')) {
+          //   console.log(`[MCP] Retrying Python code execution after installing ${missingModule}`);
+          //
+          //   // Retry executing the Python code
+          //   try {
+          //     const { stdout: retryStdout, stderr: retryStderr } = await execPromise(
+          //       `"${pythonInterpreterPath}" "${tempPythonFile}"`,
+          //       {
+          //         timeout: 50000 * 1000, // 50 second timeout
+          //         env: {
+          //           ...process.env,
+          //           LLM_PROVIDER_NAME: llmProviderName,
+          //           LLM_PROVIDER_TYPE: llmProviderType,
+          //           LLM_MODEL_ID: llmModelId,
+          //           LLM_BASE_URL: llmBaseUrl,
+          //           LLM_API_KEY: llmApiKey
+          //         }
+          //       }
+          //     );
+          //
+          //     // // Clean up the temporary files after successful retry
+          //     // try {
+          //     //   if (fs.existsSync(tempPythonFile)) {
+          //     //     fs.unlinkSync(tempPythonFile);
+          //     //   }
+          //     //   if (fs.existsSync(outputImageFile)) {
+          //     //     fs.unlinkSync(outputImageFile);
+          //     //   }
+          //     // } catch (cleanupError) {
+          //     //   console.error(`[MCP] Failed to clean up temporary files: ${cleanupError.message}`);
+          //     // }
+          //
+          //     // Check if a figure was captured in the retry
+          //     const hasFigure = retryStdout.includes('__FIGURE_CAPTURED__');
+          //     let result = retryStdout.replace('__FIGURE_CAPTURED__', '').trim();
+          //
+          //     // If there's no text output but a figure was captured
+          //     if (!result && hasFigure) {
+          //       result = 'Figure generated successfully3';
+          //     }
+          //
+          //     // If a figure was captured, read it and convert to base64
+          //     if (hasFigure && fs.existsSync(outputImageFile)) {
+          //       try {
+          //         const imageData = fs.readFileSync(outputImageFile);
+          //         const base64Image = imageData.toString('base64');
+          //
+          //         // Append the base64 image data to the result with a special marker
+          //         result += `\n\n__IMAGE_DATA__:data:image/png;base64,${base64Image}`;
+          //
+          //         // // Clean up the image file
+          //         // fs.unlinkSync(outputImageFile);
+          //       } catch (imageError) {
+          //         console.error(`[MCP] Failed to process output image: ${imageError.message}`);
+          //       }
+          //     }
+          //
+          //     // Return the result of the retry
+          //     if (retryStderr) {
+          //       return `${retryStderr}`;
+          //     }
+          //
+          //     return result || 'Code executed successfully with no output';
+          //   } catch (retryError) {
+          //     // If retry fails, continue with normal error handling
+          //     console.error('[MCP] Retry after module installation failed:', retryError);
+          //     stdout = retryError.stdout || stdout;
+          //     stderr = retryError.stderr || stderr;
+          //     error = retryError;
+          //   }
+          // }
         } catch (installError) {
           console.error(`[MCP] Failed to install module ${missingModule}:`, installError);
         }

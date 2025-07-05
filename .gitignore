@@ -17,3 +17,5 @@ build/winx64.json
 runtime/**/*
 
 src/shared/zentrun-app-core/
+
+resources/python_interpreter/

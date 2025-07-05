@@ -552,6 +552,7 @@ export interface IDevicePresenter {
 
   // 目录选择和应用重启
   selectDirectory(): Promise<{ canceled: boolean; filePaths: string[] }>
+  openFileDialog(options: { title?: string; filters?: Array<{ name: string; extensions: string[] }>; properties?: string[] }): Promise<{ canceled: boolean; filePaths: string[] }>
   restartApp(): Promise<void>
 
   // 图片缓存

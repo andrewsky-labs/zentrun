@@ -15,7 +15,7 @@
           class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
           @click="toggleEditMode"
         >
-          {{ isEditing ? t('common.save') : t('common.edit') }}
+          {{ isEditing ? t('save') : t('edit') }}
         </button>
 
         <!-- Preview button for HTML/SVG -->
@@ -44,29 +44,46 @@
 
     <!-- Run code buttons for JavaScript and Python -->
     <div v-if="isJavaScript || isPython" class="p-2 bg-gray-50 dark:bg-zinc-900 border-t border-border">
-      <button
-        class="text-xs px-3 py-1 rounded bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-1"
-        @click="runCode"
-        :disabled="isRunningCode"
-      >
-        <Icon v-if="isRunningCode" icon="lucide:loader" class="w-4 h-4 mr-2 animate-spin" />
-        <Icon v-else icon="lucide:play" class="w-3 h-3" />
-        <span>{{ t('common.run', 'Run') }}</span>
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          v-if="!isGeneratingCode"
+          class="text-xs px-3 py-1 rounded bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-1"
+          @click="runCode"
+          :disabled="isRunningCode || isGeneratingCode"
+        >
+          <Icon v-if="isRunningCode" icon="lucide:loader" class="w-4 h-4 mr-2 animate-spin" />
+          <Icon v-else-if="!isGeneratingCode" icon="lucide:play" class="w-3 h-3" />
+          <span v-if="!isGeneratingCode">{{ t('common.run', 'Run') }}</span>
+        </button>
+        <span v-if="isGeneratingCode" class="flex text-xs text-gray-500 dark:text-gray-400">
+          <Icon icon="lucide:loader" class="w-4 h-4 mr-2 animate-spin" />
+          {{ t('common.generatingCode', 'Generating Code...') }}
+        </span>
+      </div>
     </div>
 
     <!-- Code execution result -->
-    <div v-if="runCodeResult" class="p-3 bg-muted border-t border-border text-sm">
+    <div v-if="runCodeResult || resultImages.length > 0" class="p-3 bg-muted border-t border-border text-sm">
       <div class="flex justify-between items-center mb-2">
-        <span class="font-medium">{{ t('common.codeExecutionResult', 'Code Execution Result') }}</span>
+<!--        <span class="font-medium">{{ t('common.codeExecutionResult', 'Code Execution Result') }}</span>-->
+        <div></div>
         <button
           class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-          @click="runCodeResult = ''"
+          @click="clearResults"
         >
           <Icon icon="lucide:x" class="w-4 h-4" />
         </button>
       </div>
-      <pre class="whitespace-pre-wrap">{{ runCodeResult }}</pre>
+      <!-- Display result images -->
+      <div v-if="resultImages.length > 0" class="flex flex-col gap-3">
+        <div v-for="(image, index) in resultImages" :key="index" class="border border-border rounded-md overflow-hidden">
+          <div class="bg-gray-100 dark:bg-zinc-800 px-2 py-1 text-xs font-medium">
+            {{ t('common.image', 'Image') }} {{ index + 1 }}
+          </div>
+          <img :src="`${image}`" class="max-w-full" />
+        </div>
+      </div>
+      <p v-if="runCodeResult" class="whitespace-pre-wrap mb-3">{{ runCodeResult }}</p>
     </div>
   </div>
 </template>
@@ -90,6 +107,7 @@ import { detectLanguage } from '@/lib/code.detect'
 import { useThemeStore } from '@/stores/theme'
 import { getLanguageExtension, getLanguageIcon, prepareLanguage } from '@/lib/code.lang'
 import { usePresenter } from '@/composables/usePresenter'
+import { useChatStore } from '@/stores/chat'
 
 const props = defineProps<{
   node: {
@@ -110,6 +128,7 @@ const artifactStore = useArtifactStore()
 const codeBlockStore = useCodeBlockStore()
 const threadPresenter = usePresenter('threadPresenter')
 const mcpPresenter = usePresenter('mcpPresenter')
+const chatStore = useChatStore()
 const codeEditor = ref<HTMLElement | null>(null)
 const copyText = ref(t('common.copy'))
 const editorInstance = ref<EditorView | null>(null)
@@ -118,6 +137,29 @@ const isEditing = ref(false)
 const currentCode = ref(props.node.code)
 const isRunningCode = ref(false)
 const runCodeResult = ref('')
+const resultImages = ref<string[]>([])
+const isGeneratingCode = ref(false)
+
+// Function to clear both text result and images
+const clearResults = () => {
+  runCodeResult.value = ''
+  resultImages.value = []
+}
+
+// Check if the message containing this code block is being generated
+const checkIfGenerating = async () => {
+  if (props.messageId && props.threadId) {
+    const generatingState = await threadPresenter.getGeneratingMessageState(props.messageId)
+    isGeneratingCode.value = !!generatingState
+  }
+}
+
+// Initial check and setup interval to check periodically
+onMounted(() => {
+  checkIfGenerating()
+  const interval = setInterval(checkIfGenerating, 1000)
+  onUnmounted(() => clearInterval(interval))
+})
 
 // 创建节流版本的语言检测函数，1秒内最多执行一次
 const throttledDetectLanguage = useThrottleFn(
@@ -570,6 +612,7 @@ const runCode = async () => {
 
   isRunningCode.value = true
   runCodeResult.value = ''
+  resultImages.value = [] // Clear previous images
   let imageMarkerIndex = -1;
 
   try {
@@ -593,7 +636,7 @@ const runCode = async () => {
       codeToRun = parts[parts.length - 1].split('```')[0].trim()
     }
 
-    console.log("codeToRun:", codeToRun);
+    // console.log("codeToRun:", codeToRun);
     let result = ''
 
     if (isJavaScript.value) {
@@ -604,57 +647,53 @@ const runCode = async () => {
       // Execute Python code
       result = await mcpPresenter.runPythonCode(codeToRun)
 
-      console.log("codeToRun result:", result);
+      // console.log("codeToRun result:", result);
       // Check if the result contains an image
       imageMarkerIndex = result.indexOf('__IMAGE_DATA__:')
-      console.log("imageMarkerIndex", imageMarkerIndex);
+      console.log("imageMarkerIndex1", imageMarkerIndex);
     }
 
+    if (imageMarkerIndex !== -1) {
+      // Handle multiple images in the result
+      let currentResult = result;
+      let currentImageMarkerIndex = currentResult.indexOf('__IMAGE_DATA__:');
 
+      // Extract all images from the result
+      while (currentImageMarkerIndex !== -1) {
+        // Get the text before the image marker
+        const textBeforeImage = currentResult.substring(0, currentImageMarkerIndex).trim();
 
+        // Find the end of the image data (next marker or end of string)
+        const nextMarkerIndex = currentResult.indexOf('__IMAGE_DATA__:', currentImageMarkerIndex + 1);
+        const imageDataEnd = nextMarkerIndex !== -1 ? nextMarkerIndex : currentResult.length;
 
-      if (imageMarkerIndex !== -1) {
-        // Split the result into text and image parts
-        const textResult = result.substring(0, imageMarkerIndex).trim()
-        const imageData = result.substring(imageMarkerIndex + '__IMAGE_DATA__:'.length)
+        // Extract the image data
+        const imageData = currentResult.substring(currentImageMarkerIndex + '__IMAGE_DATA__:'.length, imageDataEnd);
 
-        // Set the text result for display
-        result = textResult || 'Figure generated successfully1'
+        // Add the image to the resultImages array
+        resultImages.value.push(imageData);
 
-        // Create an artifact for the image
-        const artifactId = `py-execution-${nanoid(6)}`
-        artifactStore.showArtifact(
-          {
-            id: artifactId,
-            type: 'image/png',
-            title: 'Visualization Result',
-            content: imageData,
-            status: 'loaded'
-          },
-          props.messageId,
-          props.threadId
-        )
-      } else {
-        // Display the result
-        runCodeResult.value = result
-
-        // Create an artifact for the code execution result
-        const artifactId = `code-execution-${nanoid(6)}`
-        artifactStore.showArtifact(
-          {
-            id: artifactId,
-            type: 'application/vnd.ant.code',
-            title: isJavaScript.value
-              ? 'JavaScript Execution Result'
-              : 'Python Execution Result',
-            content: result,
-            status: 'loaded'
-          },
-          props.messageId,
-          props.threadId
-        )
-
+        // Update the current result to continue searching
+        if (nextMarkerIndex !== -1) {
+          currentResult = textBeforeImage + currentResult.substring(imageDataEnd);
+          currentImageMarkerIndex = currentResult.indexOf('__IMAGE_DATA__:');
+        } else {
+          currentResult = textBeforeImage;
+          currentImageMarkerIndex = -1;
+        }
       }
+
+
+      console.log("resultImages");
+      console.log(resultImages);
+
+      // Set the text result for display
+      result = currentResult || 'Figures generated successfully'
+      runCodeResult.value = result
+    } else {
+      // Display the result
+      runCodeResult.value = result
+    }
   } catch (error) {
     runCodeResult.value = `Error: ${error.message}`
   } finally {

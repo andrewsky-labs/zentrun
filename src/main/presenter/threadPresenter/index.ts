@@ -588,12 +588,13 @@ System capabilities:
 - Utilize various tools to complete user-assigned tasks step by step
 - For Python code, please be careful with the placement of spaces or tabs, as incorrect indentation will immediately cause errors.
 - When generating and returning code, always indicate which programming language or framework it was written in.
-- When using matplotlib for data visualization, instead of using plt.show(), save the image with plt.savefig(f"{os.path.expanduser('~')}/.config/zentrun/output_figure.png") and then print("__FIGURE_CAPTURED__") to the console. Don't forget to "import os".
+- When using matplotlib for data visualization, instead of using plt.show(), save the image with plt.savefig(f"{os.path.expanduser('~')}/.config/Zentrun/{conversation_id}_{num}.png") to the console. Don't forget to "import os". Conversation ID is written below so define conversation_id = "" <- put conversation_id in here first.
 - If user wants to visulize data in python, please use matplotlib.
 - If user wants to visulize data in nodejs, please use quickchart-js.
 - If user wants to visulize data and the user has python interpreter, please use python. Otherwise, please use nodejs.
-- If you answer with multiple codes, please think that those codes are not connected so you need to import libaries in each code blocks.
-- If you answer codes in contuined questions, please think that your previous codes are not connected so you need to import libaries in each code blocks.
+- If you answer with multiple codes, integrate in one code block.
+- If you're unsure about the column format, check 5 to 10 rows first and generate the code based on that. For columns containing numbers or dates, try to infer the format even if it's not explicitly stated.
+- When answering follow-up questions with code, please assume that previous code blocks are not connected. Each code snippet must be self-contained, including all necessary imports and variable definitions.
 - I mean code block is like below.
 
 Example:
@@ -604,6 +605,7 @@ Example:
 
 \`\`\`javascript
 
+let conversation_id = "" // put conversation_id. Conversation ID is written below.
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -665,14 +667,11 @@ const filePath = "/home/dslabglobal/Downloads/marketing_campaign_dataset.csv";
   chart.setWidth(800).setHeight(500).setBackgroundColor('white');
 
   // 3. 저장
-  const outputPath = path.join(os.homedir(), '.config/zentrun/output_figure.png');
-  await chart.toFile(outputPath);
+  await chart.toFile(path.join(os.homedir(), \`.config/Zentrun/\${conversation_id}_\${num}.png\`));
   console.log(outputPath);
-  console.log('__FIGURE_CAPTURED__');
 })();
 
 \`\`\`
-
 
 
 Please generate Python code that uses the following environment variables to call an LLM:
@@ -818,11 +817,26 @@ const queryDatabase = async () => {
 5. Submit Results: Send results to user via message tools, providing deliverables and related files as message attachments
 6. Enter Standby: Enter idle state when all tasks are completed or user explicitly requests to stop, and wait for new tasks
 `
+    // First create the conversation with the initial system prompt
     mergedSettings.systemPrompt = globalSystemPrompt + mergedSettings.systemPrompt
 
-    console.log("mergedSettings.systemPrompt");
+    console.log("Initial mergedSettings.systemPrompt");
     console.log(mergedSettings.systemPrompt);
     const conversationId = await this.sqlitePresenter.createConversation(title, mergedSettings)
+
+    // Then update the system prompt to include the conversationId
+    const updatedSystemPrompt = mergedSettings.systemPrompt + `\nConversation ID: ${conversationId}`
+    console.log("Updated systemPrompt with conversationId");
+    console.log(updatedSystemPrompt);
+
+    // Finally update the conversation in the database with the new system prompt
+    await this.sqlitePresenter.updateConversation(conversationId, {
+      settings: {
+        ...mergedSettings,
+        systemPrompt: updatedSystemPrompt
+      }
+    })
+
     await this.setActiveConversation(conversationId)
     return conversationId
   }
