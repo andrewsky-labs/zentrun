@@ -1666,39 +1666,44 @@ export class McpPresenter implements IMCPPresenter {
 
       // Check if this is a ModuleNotFoundError
       const moduleNotFoundRegex = /ModuleNotFoundError: No module named '([^']+)'/;
+      const pipInstallRegex = /\$ pip install\s+(?:--upgrade\s+)?([^\s]+(?:\s+[^\s]+)*)/;
       let moduleMatch = null;
 
       // Check in stderr first
       if (stderr) {
-        moduleMatch = stderr.match(moduleNotFoundRegex);
+        moduleMatch = stderr.match(moduleNotFoundRegex) || stderr.match(pipInstallRegex);
       }
 
       // If not found in stderr, check in error.stderr
       if (!moduleMatch && error.stderr) {
-        moduleMatch = error.stderr.match(moduleNotFoundRegex);
+        moduleMatch = error.stderr.match(moduleNotFoundRegex) || error.stderr.match(pipInstallRegex);
       }
 
       // If not found in error.stderr, check in error.message
       if (!moduleMatch && error.message) {
-        moduleMatch = error.message.match(moduleNotFoundRegex);
+        moduleMatch = error.message.match(moduleNotFoundRegex) || error.message.match(pipInstallRegex);
       }
 
       // If we found a missing module, try to install it and retry
       if (moduleMatch && moduleMatch[1]) {
-        const missingModule = moduleMatch[1];
-        console.log(`[MCP] Detected missing module: ${missingModule}. Attempting to install...`);
+        // Extract the module name(s)
+        let missingModules = moduleMatch[1].split(/\s+/).filter(Boolean);
+        console.log(`[MCP] Detected missing module(s): ${missingModules.join(', ')}. Attempting to install...`);
 
         try {
           // Keep the temporary file for retry
-          // Install the missing module
-          const { stdout: installStdout, stderr: installStderr } = await execPromise(
-            `"${pythonInterpreterPath}" -m pip install ${missingModule}`,
-            { timeout: 60000 } // 60 second timeout for installation
-          );
+          // Install the missing modules
+          for (const module of missingModules) {
+            console.log(`[MCP] Installing module: ${module}`);
+            const { stdout: installStdout, stderr: installStderr } = await execPromise(
+              `"${pythonInterpreterPath}" -m pip install ${module}`,
+              { timeout: 60000 } // 60 second timeout for installation
+            );
 
-          console.log(`[MCP] Module installation result: ${installStdout}`);
-          if (installStderr) {
-            console.error(`[MCP] Module installation error: ${installStderr}`);
+            console.log(`[MCP] Module installation result for ${module}: ${installStdout}`);
+            if (installStderr) {
+              console.error(`[MCP] Module installation error for ${module}: ${installStderr}`);
+            }
           }
 
           this.runPythonCode(code);
@@ -1776,7 +1781,7 @@ export class McpPresenter implements IMCPPresenter {
           //   }
           // }
         } catch (installError) {
-          console.error(`[MCP] Failed to install module ${missingModule}:`, installError);
+          console.error(`[MCP] Failed to install module(s) ${missingModules.join(', ')}:`, installError);
         }
       }
 
