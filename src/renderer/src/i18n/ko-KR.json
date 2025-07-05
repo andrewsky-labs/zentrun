@@ -52,6 +52,7 @@
         "copy": "복사",
         "paste": "붙여넣기",
         "export": "내보내기",
+        "generatingCode": "코드 생성 중...",
         "newChat": "새 채팅",
         "newTopic": "새 주제",
         "cancel": "취소",
@@ -526,7 +527,7 @@
     },
     "newThread": {
         "greeting": "안녕하세요",
-        "prompt": "바이브 코딩으로 AI 팀 만들기를 시작해보세요."
+        "prompt": "행동과 의사결정을 자동화해보세요."
     },
     "usage": {
         "title": "사용량",
@@ -666,11 +667,11 @@
         },
         "agent": {
             "add": {
-                "title": "요원 추가",
+                "title": "앱 추가",
                 "name": "이름",
                 "prompt": "프롬프트",
                 "addZent": "추가 젠트",
-                "searchZent": "검색 제이트 이름",
+                "searchZent": "젠트 검색",
                 "noSearchResults": "검색 결과가 없습니다.",
                 "categories": "범주",
                 "selectCategories": "범주 선택...",

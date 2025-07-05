@@ -19,10 +19,53 @@ import Clarity from "@microsoft/clarity";
 
 const route = useRoute()
 const configPresenter = usePresenter('configPresenter')
+const devicePresenter = usePresenter('devicePresenter')
 const artifactStore = useArtifactStore()
 const chatStore = useChatStore()
 const { toast } = useToast()
 const settingsStore = useSettingsStore()
+
+// Miniconda installation state
+const isInstallingMiniconda = ref(false)
+const minicondaInstallProgress = ref('')
+
+// Function to check if Miniconda is installed using configPresenter
+const checkMinicondaInstalled = async () => {
+  try {
+    return await configPresenter.checkMinicondaInstalled()
+  } catch (error) {
+    console.error('Error checking if Miniconda is installed:', error)
+    return false
+  }
+}
+
+// Function to download and install Miniconda using configPresenter
+const installMiniconda = async () => {
+  if (isInstallingMiniconda.value) {
+    console.log('Miniconda installation already in progress')
+    return
+  }
+
+  try {
+    isInstallingMiniconda.value = true
+
+    // Use the configPresenter to install Miniconda with progress updates
+    const success = await configPresenter.installMiniconda()
+
+    isInstallingMiniconda.value = false
+
+    if (!success) {
+      throw new Error('Miniconda installation failed')
+    }
+
+    return Promise.resolve()
+  } catch (error) {
+    console.error('Error installing Miniconda:', error)
+    minicondaInstallProgress.value = `Error installing Miniconda: ${error.message}`
+    isInstallingMiniconda.value = false
+    throw error
+  }
+}
 
 // 错误通知队列及当前正在显示的错误
 const errorQueue = ref<Array<{ id: string; title: string; message: string; type: string }>>([])
@@ -172,6 +215,36 @@ onMounted(async () => {
   Clarity.init("r8nmcbdle8");
   Clarity.consent();
   Clarity.event("openApp");
+
+  // Check if Miniconda is installed and install it if not
+  try {
+    const isMinicondaInstalled = await checkMinicondaInstalled()
+    if (!isMinicondaInstalled) {
+      console.log('Miniconda not found. Installing...')
+      toast({
+        title: 'Installing Python Environment',
+        description: 'Setting up Miniconda for Python support. This may take a few minutes.',
+        duration: 5000
+      })
+
+      // Install Miniconda
+      await installMiniconda()
+
+      toast({
+        title: 'Python Environment Ready',
+        description: 'Miniconda has been installed successfully.',
+        duration: 3000
+      })
+    }
+  } catch (error) {
+    console.error('Error setting up Miniconda:', error)
+    toast({
+      title: 'Python Environment Setup Failed',
+      description: 'Failed to set up Miniconda. Some features may not work properly.',
+      variant: 'destructive',
+      duration: 5000
+    })
+  }
   // Clarity.setTag("env", process.env.NODE_ENV);
   // Clarity.setTag("isBuild", process.env.VITE_IS_FOR_BUILD);
   // Clarity.setTag("version", electronData.get().version);
@@ -198,6 +271,8 @@ onMounted(async () => {
   automationStore.initialize().catch(error => {
     console.error('Error initializing automation store:', error)
   })
+
+
 
   // 监听全局错误通知事件
   window.electron.ipcRenderer.on(NOTIFICATION_EVENTS.SHOW_ERROR, (_event, error) => {
@@ -339,6 +414,25 @@ onBeforeUnmount(() => {
       <!-- Artifacts 预览区域 -->
       <ArtifactDialog />
     </div>
+
+    <!-- Miniconda Installation Progress -->
+    <div
+      v-if="isInstallingMiniconda"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-card p-6 rounded-lg shadow-lg max-w-md w-full">
+        <h3 class="text-xl font-semibold mb-4">Installing Python Environment</h3>
+        <p class="mb-4">Please wait while we set up Miniconda for Python support. This may take a few minutes.</p>
+        <div class="w-full bg-muted rounded-full h-2.5 mb-4">
+          <div
+            class="bg-primary h-2.5 rounded-full animate-pulse"
+            style="width: 100%"
+          ></div>
+        </div>
+        <p class="text-sm text-muted-foreground">{{ minicondaInstallProgress }}</p>
+      </div>
+    </div>
+
     <!-- 全局更新弹窗 -->
     <UpdateDialog />
     <!-- 全局Toast提示 -->

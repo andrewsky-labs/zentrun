@@ -1378,24 +1378,56 @@ export class McpPresenter implements IMCPPresenter {
   async runPythonCode(code: string): Promise<string> {
     console.log('[MCP] Running Python code')
 
-    // Get Python interpreter path from settings
-    const pythonInterpreterPath = await this.configPresenter.getSetting('pythonInterpreterPath');
-
-    if (!pythonInterpreterPath) {
-      return 'Error: Python interpreter path not configured. Please set it in Settings > Common Settings.';
-    }
-
     // Ensure data directory exists for file operations
     const fs = require('fs');
     const path = require('path');
     const os = require('os');
     const { exec } = require('child_process');
     const { promisify } = require('util');
+
+    // Get Python interpreter path from settings
+    let pythonInterpreterPath = await this.configPresenter.getSetting('pythonInterpreterPath');
+
+    if (!pythonInterpreterPath) {
+      console.log('[MCP] Python interpreter path not configured, setting default based on OS');
+
+      // Get app path
+      const app = require('electron').app;
+      const appPath = app.getAppPath().replace('app.asar', 'app.asar.unpacked');
+
+      // Determine OS-specific path to python executable
+      const platform = process.platform;
+      const pythonInterpreterDir = path.join(appPath, 'resources', 'python_interpreter');
+
+      if (platform === 'win32') {
+        pythonInterpreterPath = path.join(pythonInterpreterDir, 'win', 'miniconda3', 'python.exe');
+      } else if (platform === 'darwin') {
+        pythonInterpreterPath = path.join(pythonInterpreterDir, 'mac', 'miniconda3', 'bin', 'python');
+      } else if (platform === 'linux') {
+        pythonInterpreterPath = path.join(pythonInterpreterDir, 'linux', 'miniconda3', 'bin', 'python');
+      }
+
+      // Save the path to settings
+      // await this.configPresenter.setSetting('pythonInterpreterPath', pythonInterpreterPath);
+      console.log(`[MCP] Set Python interpreter path to: ${pythonInterpreterPath}`);
+    }
+
     const execPromise = promisify(exec);
 
     const dataDir = path.join(os.homedir(), '.config/zentrun');
     const tempPythonFile = path.join(dataDir, 'temp_script.py');
     const outputImageFile = path.join(dataDir, 'output_figure.png');
+
+    // Get active conversation ID for image file naming
+    let chat_id = 'default';
+    try {
+      const activeConversation = await presenter.threadPresenter.getActiveConversation();
+      if (activeConversation) {
+        chat_id = activeConversation.id;
+      }
+    } catch (error) {
+      console.error('[MCP] Error getting active conversation ID:', error);
+    }
 
     if (!fs.existsSync(dataDir)) {
       try {

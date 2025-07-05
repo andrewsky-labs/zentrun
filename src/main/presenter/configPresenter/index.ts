@@ -19,6 +19,9 @@ import { presenter } from '@/presenter'
 import { compare } from 'compare-versions'
 import { defaultModelsSettings } from './modelDefaultSettings'
 import { getProviderSpecificModelConfig } from './providerModelSettings'
+import { exec } from 'child_process'
+import axios from 'axios'
+import { promisify } from 'util'
 
 // 定义应用设置的接口
 interface IAppSettings {
@@ -229,6 +232,9 @@ export class ConfigPresenter implements IConfigPresenter {
   setSetting<T>(key: string, value: T): void {
     try {
       this.store.set(key, value)
+      if (!value) {
+        this.store.delete(key);
+      }
       // 触发设置变更事件
       eventBus.emit(CONFIG_EVENTS.SETTING_CHANGED, key, value)
     } catch (error) {
@@ -793,6 +799,170 @@ export class ConfigPresenter implements IConfigPresenter {
 
   setAuthToken(token: string): void {
     this.setSetting('authToken', token)
+  }
+
+  /**
+   * Check if Miniconda is installed in the resources/python_interpreter directory
+   * @returns Promise<boolean> True if Miniconda is installed, false otherwise
+   */
+  async checkMinicondaInstalled(): Promise<boolean> {
+    try {
+      // Get app path
+      const appPath = app.getAppPath().replace('app.asar', 'app.asar.unpacked')
+
+      // Determine OS-specific path to python executable
+      const platform = process.platform
+      const pythonInterpreterDir = path.join(appPath, 'resources', 'python_interpreter')
+
+      let pythonPath = ''
+      if (platform === 'win32') {
+        pythonPath = path.join(pythonInterpreterDir, 'win', 'miniconda3', 'python.exe')
+      } else if (platform === 'darwin') {
+        pythonPath = path.join(pythonInterpreterDir, 'mac', 'miniconda3', 'bin', 'python')
+      } else if (platform === 'linux') {
+        pythonPath = path.join(pythonInterpreterDir, 'linux', 'miniconda3', 'bin', 'python')
+      }
+
+      // Check if the python executable exists
+      const exists = fs.existsSync(pythonPath)
+
+      if (exists) {
+        console.log('Miniconda is already installed at:', pythonPath)
+        // Set the python interpreter path in settings if not already set
+        const currentPath = this.getSetting<string>('pythonInterpreterPath')
+        if (!currentPath) {
+          // this.setSetting('pythonInterpreterPath', pythonPath)
+          console.log('Python interpreter path set to:', pythonPath)
+        }
+        return true
+      } else {
+        console.log('Miniconda is not installed')
+        return false
+      }
+    } catch (error) {
+      console.error('Error checking if Miniconda is installed:', error)
+      return false
+    }
+  }
+
+  /**
+   * Download and install Miniconda in the resources/python_interpreter directory
+   * @param progressCallback Optional callback function to report installation progress
+   * @returns Promise<boolean> True if installation was successful, false otherwise
+   */
+  async installMiniconda(): Promise<boolean> {
+    const execPromise = promisify(exec)
+
+    try {
+      console.log("installMiniconda")
+      // if (progressCallback) {
+      //   progressCallback('Starting Miniconda installation...')
+      // }
+
+      // Get app path
+      const appPath = app.getAppPath().replace('app.asar', 'app.asar.unpacked')
+      const platform = process.platform
+
+      // Create python_interpreter directory if it doesn't exist
+      const pythonInterpreterDir = path.join(appPath, 'resources', 'python_interpreter')
+      if (!fs.existsSync(pythonInterpreterDir)) {
+        fs.mkdirSync(pythonInterpreterDir, { recursive: true })
+      }
+
+      // Create OS-specific directory
+      let osDir = ''
+      let installerUrl = ''
+      let installerPath = ''
+      let installCommand = ''
+
+      if (platform === 'win32') {
+        osDir = path.join(pythonInterpreterDir, 'win')
+        installerUrl = 'https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe'
+        installerPath = path.join(osDir, 'Miniconda3-latest-Windows-x86_64.exe')
+        installCommand = `"${installerPath}" /S /D=${path.join(osDir, 'miniconda3')}`
+      } else if (platform === 'darwin') {
+        osDir = path.join(pythonInterpreterDir, 'mac')
+        installerUrl = 'https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh'
+        installerPath = path.join(osDir, 'Miniconda3-latest-MacOSX-arm64.sh')
+        installCommand = `bash "${installerPath}" -b -p "${path.join(osDir, 'miniconda3')}"`
+      } else if (platform === 'linux') {
+        osDir = path.join(pythonInterpreterDir, 'linux')
+        installerUrl = 'https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh'
+        installerPath = path.join(osDir, 'Miniconda3-latest-Linux-x86_64.sh')
+        installCommand = `bash "${installerPath}" -b -p "${path.join(osDir, 'miniconda3')}"`
+      } else {
+        throw new Error(`Unsupported platform: ${platform}`)
+      }
+
+      // Create OS-specific directory if it doesn't exist
+      if (!fs.existsSync(osDir)) {
+        fs.mkdirSync(osDir, { recursive: true })
+      }
+
+      // Download the installer
+      // if (progressCallback) {
+      //   progressCallback('Downloading Miniconda installer...')
+      // }
+      console.log('Downloading Miniconda installer from:', installerUrl)
+
+      const response = await axios({
+        method: 'GET',
+        url: installerUrl,
+        responseType: 'arraybuffer',
+        onDownloadProgress: (progressEvent) => {
+          // if (progressEvent.total && progressCallback) {
+          //   const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            // progressCallback(`Downloading Miniconda installer... ${percentCompleted}%`)
+          // }
+        }
+      })
+
+      // Save the installer to disk
+      fs.writeFileSync(installerPath, Buffer.from(response.data))
+      console.log('Miniconda installer downloaded to:', installerPath)
+
+      // Install Miniconda
+      // if (progressCallback) {
+      //   progressCallback('Installing Miniconda...')
+      // }
+      console.log('Installing Miniconda with command:', installCommand)
+
+      try {
+        const { stdout, stderr } = await execPromise(installCommand)
+        console.log('Miniconda installed successfully')
+        console.log('stdout:', stdout)
+
+        if (stderr) {
+          console.warn('stderr:', stderr)
+        }
+
+        // Set the python interpreter path in settings
+        const pythonPath = platform === 'win32'
+          ? path.join(osDir, 'miniconda3', 'python.exe')
+          : path.join(osDir, 'miniconda3', 'bin', 'python')
+
+        // this.setSetting('pythonInterpreterPath', pythonPath)
+        console.log('Python interpreter path set to:', pythonPath)
+
+        // if (progressCallback) {
+        //   progressCallback('Miniconda installed successfully')
+        // }
+
+        return true
+      } catch (error) {
+        console.error('Miniconda installation failed:', error)
+        // if (progressCallback) {
+        //   progressCallback(`Miniconda installation failed: ${error.message}`)
+        // }
+        return false
+      }
+    } catch (error) {
+      console.error('Error installing Miniconda:', error)
+      // if (progressCallback) {
+      //   progressCallback(`Error installing Miniconda: ${error.message}`)
+      // }
+      return false
+    }
   }
 }
 

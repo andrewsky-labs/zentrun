@@ -281,6 +281,9 @@ export interface IConfigPresenter {
   getModelConfig(modelId: string, providerId?: string): ModelConfig
   setNotificationsEnabled(enabled: boolean): void
   getNotificationsEnabled(): boolean
+  // Miniconda installation
+  checkMinicondaInstalled(): Promise<boolean>
+  installMiniconda(): Promise<boolean>
 }
 export type RENDERER_MODEL_META = {
   id: string

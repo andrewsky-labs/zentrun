@@ -52,6 +52,7 @@
         "copy": "Copy",
         "paste": "Paste",
         "export": "Export",
+        "generatingCode": "Generating Code...",
         "newChat": "New Chat",
         "newTopic": "New Topic",
         "cancel": "Cancel",
@@ -171,7 +172,12 @@
                 "title": "Shortcut key settings"
             },
             "notifications": "System Notification",
-            "notificationsDesc": "When Zentrun is not in the foreground, if a session is generated, a system notification will be sent"
+            "notificationsDesc": "When Zentrun is not in the foreground, if a session is generated, a system notification will be sent",
+            "pythonInterpreterPath": "Python Interpreter Path",
+            "pythonInterpreterPathPlaceholder": "Path to Python interpreter (e.g., /usr/bin/python3)",
+            "browsePythonInterpreter": "Browse for Python interpreter",
+            "pythonPathSaved": "Python interpreter path saved",
+            "pythonPathError": "Failed to save Python interpreter path"
         },
         "data": {
             "title": "Data Settings",
@@ -526,7 +532,7 @@
     },
     "newThread": {
         "greeting": "Zentrun",
-        "prompt": "Build your AI team with vibe coding"
+        "prompt": "Automate Actions and Decisions with AI"
     },
     "usage": {
         "title": "Usage",
@@ -1868,5 +1874,6 @@
     "require-field-input-deploy-marketplace": "The following fields are required to deploy to the marketplace:",
     "failed-to-add-agent": "Failed to add app",
     "reference": "Reference",
+    "generating...": "generating...",
     "require-field-input-more": "The following fields are required:"
 }
