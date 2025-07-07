@@ -127,7 +127,8 @@ export const errorMessageTranslations: Record<string, TranslationMap> = {
     needDifyDatasetId: '需要提供Dify Dataset ID',
     needRagflowEndpoint: '需要提供RAGFlow Endpoint',
     needDifyEndpoint: '需要提供Dify Endpoint',
-    needKnowledgeBaseDescription: '需要提供对这个知识库的描述，以方便ai决定是否检索此知识库'
+    needKnowledgeBaseDescription: '需要提供对这个知识库的描述，以方便ai决定是否检索此知识库',
+    checkCreditOnLlmUsagePage: '请在LLM使用页面检查您的额度。'
   },
   'zh-TW': {
     mcpConnectionErrorTitle: 'MCP 連接錯誤',
@@ -148,7 +149,8 @@ export const errorMessageTranslations: Record<string, TranslationMap> = {
     needDifyDatasetId: '需要提供Dify Dataset ID',
     needRagflowEndpoint: '需要提供RAGFlow Endpoint',
     needDifyEndpoint: '需要提供Dify Endpoint',
-    needKnowledgeBaseDescription: '需要提供對這個知識庫的描述，以方便ai決定是否檢索此知識庫'
+    needKnowledgeBaseDescription: '需要提供對這個知識庫的描述，以方便ai決定是否檢索此知識庫',
+    checkCreditOnLlmUsagePage: '請在LLM使用頁面檢查您的額度。'
   },
   'en-US': {
     mcpConnectionErrorTitle: 'MCP Connection Error',
@@ -173,7 +175,8 @@ export const errorMessageTranslations: Record<string, TranslationMap> = {
     needRagflowEndpoint: 'Need to provide RAGFlow Endpoint',
     needDifyEndpoint: 'Need to provide Dify Endpoint',
     needKnowledgeBaseDescription:
-      'Need to provide a description for this knowledge base to help AI decide whether to retrieve this knowledge base'
+      'Need to provide a description for this knowledge base to help AI decide whether to retrieve this knowledge base',
+    checkCreditOnLlmUsagePage: 'Check your credit on LLM usage page.'
   },
   ja: {
     mcpConnectionErrorTitle: 'MCP 接続エラー',
@@ -197,7 +200,8 @@ export const errorMessageTranslations: Record<string, TranslationMap> = {
     needRagflowEndpoint: 'RAGFlowのエンドポイントを提供する必要があります',
     needDifyEndpoint: 'Difyのエンドポイントを提供する必要があります',
     needKnowledgeBaseDescription:
-      'この知識ベースの説明を提供する必要があります。AIがこの知識ベースを取得するかどうかを判断するのに役立ちます'
+      'この知識ベースの説明を提供する必要があります。AIがこの知識ベースを取得するかどうかを判断するのに役立ちます',
+    checkCreditOnLlmUsagePage: 'LLM使用ページでクレジットを確認してください。'
   },
   ko: {
     mcpConnectionErrorTitle: 'MCP 연결 오류',
@@ -221,7 +225,8 @@ export const errorMessageTranslations: Record<string, TranslationMap> = {
     needRagflowEndpoint: 'RAGFlow 엔드포인트를 제공해야 합니다',
     needDifyEndpoint: 'Dify 엔드포인트를 제공해야 합니다',
     needKnowledgeBaseDescription:
-      'AI가 이 지식 베이스를 검색할지 여부를 결정하는 데 도움이 되는 설명을 제공해야 합니다'
+      'AI가 이 지식 베이스를 검색할지 여부를 결정하는 데 도움이 되는 설명을 제공해야 합니다',
+    checkCreditOnLlmUsagePage: 'LLM 사용 페이지에서 크레딧을 확인하세요.'
   },
   fr: {
     mcpConnectionErrorTitle: 'Erreur de connexion MCP',
@@ -247,7 +252,8 @@ export const errorMessageTranslations: Record<string, TranslationMap> = {
     needRagflowEndpoint: 'Vous devez fournir le point de terminaison RAGFlow',
     needDifyEndpoint: 'Vous devez fournir le point de terminaison Dify',
     needKnowledgeBaseDescription:
-      "Vous devez fournir une description de cette base de connaissances pour aider l'IA à décider si elle doit récupérer cette base de connaissances"
+      "Vous devez fournir une description de cette base de connaissances pour aider l'IA à décider si elle doit récupérer cette base de connaissances",
+    checkCreditOnLlmUsagePage: 'Vérifiez votre crédit sur la page d\'utilisation LLM.'
   },
   de: {
     mcpConnectionErrorTitle: 'MCP-Verbindungsfehler',
@@ -272,7 +278,8 @@ export const errorMessageTranslations: Record<string, TranslationMap> = {
     needRagflowEndpoint: 'Es muss ein RAGFlow-Endpunkt bereitgestellt werden',
     needDifyEndpoint: 'Es muss ein Dify-Endpunkt bereitgestellt werden',
     needKnowledgeBaseDescription:
-      'Es muss eine Beschreibung dieser Wissensdatenbank bereitgestellt werden, um der KI zu helfen, zu entscheiden, ob sie diese Wissensdatenbank abrufen soll'
+      'Es muss eine Beschreibung dieser Wissensdatenbank bereitgestellt werden, um der KI zu helfen, zu entscheiden, ob sie diese Wissensdatenbank abrufen soll',
+    checkCreditOnLlmUsagePage: 'Überprüfen Sie Ihr Guthaben auf der LLM-Nutzungsseite.'
   },
   es: {
     mcpConnectionErrorTitle: 'Error de conexión MCP',
@@ -297,7 +304,8 @@ export const errorMessageTranslations: Record<string, TranslationMap> = {
     needRagflowEndpoint: 'Se debe proporcionar el punto de acceso de RAGFlow',
     needDifyEndpoint: 'Se debe proporcionar el punto de acceso de Dify',
     needKnowledgeBaseDescription:
-      'Se debe proporcionar una descripción de esta base de conocimientos para ayudar a la IA a decidir si debe recuperar esta base de conocimientos'
+      'Se debe proporcionar una descripción de esta base de conocimientos para ayudar a la IA a decidir si debe recuperar esta base de conocimientos',
+    checkCreditOnLlmUsagePage: 'Verifique su crédito en la página de uso de LLM.'
   }
 }
 

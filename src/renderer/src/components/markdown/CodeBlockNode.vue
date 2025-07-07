@@ -74,6 +74,7 @@
           <Icon icon="lucide:x" class="w-4 h-4" />
         </button>
       </div>
+      <p v-if="runCodeResult" class="whitespace-pre-wrap mb-3">{{ runCodeResult }}</p>
       <!-- Display result images -->
       <div v-if="resultImages.length > 0" class="flex flex-col gap-3">
         <div v-for="(image, index) in resultImages" :key="index" class="border border-border rounded-md overflow-hidden">
@@ -83,7 +84,6 @@
           <img :src="`${image}`" class="max-w-full" />
         </div>
       </div>
-      <p v-if="runCodeResult" class="whitespace-pre-wrap mb-3">{{ runCodeResult }}</p>
     </div>
   </div>
 </template>
