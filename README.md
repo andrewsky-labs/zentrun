@@ -1,4 +1,3 @@
-```md
 # 🛰️ Zentrun — The Open Source Palantir Alternative
 
 Zentrun is an open source platform for **AI-powered decision automation** — a transparent, prompt-driven alternative to Palantir Foundry and AIP.
@@ -39,10 +38,12 @@ Download from zentrun.com or GitHub Releases.
 ##  ✨  Quick Start
 
 ```bash
+
 git clone https://github.com/andrewsky-labs/zentrun
 cd zentrun
 yarn
 yarn run dev
+
 ```
 
 ---
