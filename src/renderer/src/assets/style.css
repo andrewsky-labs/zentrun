@@ -20,7 +20,7 @@
     --border: 214 32% 91%;
     --input: 214 32% 91%;
 
-    --primary: 243 76% 59%;
+    --primary: 240 10% 3.9%;
     --primary-foreground: 0 0% 98%;
 
     --secondary: 240 4.8% 95.9%;
@@ -53,8 +53,8 @@
     --border: 240, 4%, 16%;
     --input: 240, 4%, 16%;
 
-    --primary: 243, 75%, 59%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240, 10%, 4%;
 
     --secondary: 215, 14%, 34%;
     --secondary-foreground: 240, 5%, 34%;

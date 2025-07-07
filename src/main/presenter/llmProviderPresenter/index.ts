@@ -8,6 +8,7 @@ import {
   ChatMessage,
   LLMAgentEvent
 } from '@shared/presenter'
+import { getErrorMessageLabels } from '@shared/i18n'
 import { BaseLLMProvider } from './baseProvider'
 import { OpenAIProvider } from './providers/openAIProvider'
 import { DeepseekProvider } from './providers/deepseekProvider'
@@ -846,12 +847,15 @@ export class LLMProviderPresenter implements ILlmProviderPresenter {
           console.error(`Agent loop inner error for event ${eventId}:`, error)
           console.log("providerId", providerId)
           if (providerId === 'zentrun') {
+            // Get the current language from configPresenter and use it to get the translated error message
+            const currentLanguage = this.configPresenter.getLanguage();
+            const errorLabels = getErrorMessageLabels(currentLanguage);
 
             yield {
               type: 'error',
               data: {
                 eventId,
-                error: "Check your credit on llm usage page."
+                error: errorLabels.checkCreditOnLlmUsagePage
               }
             }
 

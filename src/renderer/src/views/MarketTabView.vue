@@ -15,7 +15,7 @@
               class="border border-gray-200 rounded px-3 py-2 w-full md:w-64 focus:outline-none focus:border-emerald-400"
               @keyup.enter="fetchMarketplaceData"
             />
-            <Button @click="fetchMarketplaceData" variant="outline" class="text-emerald-600 hover:text-emerald-700">
+            <Button @click="fetchMarketplaceData" variant="outline" class="">
               {{ t('search') }}
             </Button>
             <select v-model="sortBy" class="border border-gray-200 rounded px-2 py-2 text-sm">
@@ -56,22 +56,22 @@
             <h2 class="text-2xl font-semibold">{{ t('zpilots') }}</h2>
             <p class="text-gray-500">{{ t('discover-advanced-workflows-unlocked-by-teams-of-ai-agents') }}</p>
           </div>
-          <Button @click="showOrganizationsDialog = true" variant="outline" class="text-emerald-600 hover:text-emerald-700">
+          <Button @click="showOrganizationsDialog = true" variant="outline" class="">
             {{ t('show-more') }}
           </Button>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          <div v-for="item in organizations" :key="item.id" class="bg-white rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
+          <div v-for="item in organizations" :key="item.id" class=" rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
             <div class="flex items-center justify-between p-4 pb-0">
-              <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />
-              <span v-if="parseCategories(item.categories)" class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded">{{ parseCategories(item.categories)[0] }}</span>
+<!--              <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />-->
+              <span v-if="parseCategories(item.categories)" class="text-xs ">{{ parseCategories(item.categories)[0] }}</span>
             </div>
             <div class="p-4 flex-1 flex flex-col">
               <h3 class="font-bold text-base mb-1 truncate" :title="item.name">{{ item.name }}</h3>
               <span class="text-xs text-gray-400 mb-2">by {{ item.by || 'Unknown' }}</span>
               <p class="text-sm text-gray-700 mb-3 line-clamp-3">{{ item.bio || '' }}</p>
               <div class="flex flex-wrap gap-1 mb-2">
-                <span v-for="cat in parseCategories(item.tags)" :key="cat" class="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded">{{ cat }}</span>
+                <span v-for="cat in parseCategories(item.tags)" :key="cat" class=" text-xs px-2 py-0.5 rounded">{{ cat }}</span>
               </div>
 <!--              <span class="text-xs text-gray-400 mt-auto">{{ formatDate(item.created_at) }}</span>-->
             </div>
@@ -86,25 +86,25 @@
       <div v-if="!isLoading && !error && agents.length > 0" class="mb-12">
         <div class="flex justify-between items-center mb-4">
           <div>
-            <h2 class="text-2xl font-semibold">{{ t('agents') }}</h2>
+            <h2 class="text-2xl font-semibold">{{ t('apps') }}</h2>
             <p class="text-gray-500">{{ t('discover-ai-agents-with-specialized-capabilities') }}</p>
           </div>
-          <Button @click="showAgentsDialog = true" variant="outline" class="text-emerald-600 hover:text-emerald-700">
+          <Button @click="showAgentsDialog = true" class="">
             {{ t('show-more') }}
           </Button>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          <div v-for="item in agents" :key="item.id" class="bg-white rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
+          <div v-for="item in agents" :key="item.id" class=" rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
             <div class="flex items-center justify-between p-4 pb-0">
-              <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />
-              <span v-if="parseCategories(item.categories)" class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded">{{ parseCategories(item.categories)[0] }}</span>
+<!--              <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />-->
+              <span v-if="parseCategories(item.categories)" class="text-xs ">{{ parseCategories(item.categories)[0] }}</span>
             </div>
             <div class="p-4 flex-1 flex flex-col">
               <h3 class="font-bold text-base mb-1 truncate" :title="item.name">{{ item.name }}</h3>
               <span class="text-xs text-gray-400 mb-2">by {{ item.by || 'Unknown' }}</span>
               <p class="text-sm text-gray-700 mb-3 line-clamp-3">{{ item.bio || '' }}</p>
               <div class="flex flex-wrap gap-1 mb-2">
-                <span v-for="cat in parseCategories(item.tags)" :key="cat" class="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded">{{ cat }}</span>
+                <span v-for="cat in parseCategories(item.tags)" :key="cat" class=" text-xs px-2 py-0.5 rounded">{{ cat }}</span>
               </div>
 <!--              <span class="text-xs text-gray-400 mt-auto">{{ formatDate(item.created_at) }}</span>-->
             </div>
@@ -121,22 +121,22 @@
             <h2 class="text-2xl font-semibold">{{ t('zents') }}</h2>
             <p class="text-gray-500">{{ t('discover-knowledge-units-for-your-ai-assistants') }}</p>
           </div>
-          <Button @click="showZentsDialog = true" variant="outline" class="text-emerald-600 hover:text-emerald-700">
+          <Button @click="showZentsDialog = true" variant="outline" class="">
             {{ t('show-more') }}
           </Button>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          <div v-for="item in zents" :key="item.id" class="bg-white rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
+          <div v-for="item in zents" :key="item.id" class=" rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
             <div class="flex items-center justify-between p-4 pb-0">
 <!--              <img :src="item.logo_url || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />-->
-              <span v-if="parseCategories(item.categories)" class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded">{{ parseCategories(item.categories)[0] }}</span>
+              <span v-if="parseCategories(item.categories)" class="text-xs ">{{ parseCategories(item.categories)[0] }}</span>
             </div>
             <div class="p-4 flex-1 flex flex-col">
               <h3 class="font-bold text-base mb-1 truncate" :title="item.name">{{ item.name }}</h3>
               <span class="text-xs text-gray-400 mb-2">by {{ item.by || 'Unknown' }}</span>
               <p class="text-sm text-gray-700 mb-3 line-clamp-3">{{ item.bio || '' }}</p>
               <div class="flex flex-wrap gap-1 mb-2">
-                <span v-for="cat in parseCategories(item.tags)" :key="cat" class="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded">{{ cat }}</span>
+                <span v-for="cat in parseCategories(item.tags)" :key="cat" class=" text-xs px-2 py-0.5 rounded">{{ cat }}</span>
               </div>
 <!--              <span class="text-xs text-gray-400 mt-auto">{{ formatDate(item.created_at) }}</span>-->
             </div>
@@ -194,17 +194,17 @@
         </div>
 
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-          <div v-for="item in zents" :key="item.id" class="bg-white rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
+          <div v-for="item in zents" :key="item.id" class=" rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
             <div class="flex items-center justify-between p-4 pb-0">
   <!--              <img :src="item.logo_url || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />-->
-              <span v-if="parseCategories(item.categories)" class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded">{{ parseCategories(item.categories)[0] }}</span>
+              <span v-if="parseCategories(item.categories)" class="text-xs ">{{ parseCategories(item.categories)[0] }}</span>
             </div>
             <div class="p-4 flex-1 flex flex-col">
               <h3 class="font-bold text-base mb-1 truncate" :title="item.name">{{ item.name }}</h3>
               <span class="text-xs text-gray-400 mb-2">by {{ item.by || 'Unknown' }}</span>
               <p class="text-sm text-gray-700 mb-3 line-clamp-3">{{ item.bio || '' }}</p>
               <div class="flex flex-wrap gap-1 mb-2">
-                <span v-for="cat in parseCategories(item.tags)" :key="cat" class="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded">{{ cat }}</span>
+                <span v-for="cat in parseCategories(item.tags)" :key="cat" class=" text-xs px-2 py-0.5 rounded">{{ cat }}</span>
               </div>
   <!--              <span class="text-xs text-gray-400 mt-auto">{{ formatDate(item.created_at) }}</span>-->
             </div>
@@ -273,17 +273,17 @@
         </div>
 
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-          <div v-for="item in agents" :key="item.id" class="bg-white rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
+          <div v-for="item in agents" :key="item.id" class=" rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
             <div class="flex items-center justify-between p-4 pb-0">
-                <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />
-                <span v-if="parseCategories(item.categories)" class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded">{{ parseCategories(item.categories)[0] }}</span>
+<!--                <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />-->
+                <span v-if="parseCategories(item.categories)" class="text-xs ">{{ parseCategories(item.categories)[0] }}</span>
               </div>
             <div class="p-4 flex-1 flex flex-col">
               <h3 class="font-bold text-base mb-1 truncate" :title="item.name">{{ item.name }}</h3>
               <span class="text-xs text-gray-400 mb-2">by {{ item.by || 'Unknown' }}</span>
               <p class="text-sm text-gray-700 mb-3 line-clamp-3">{{ item.bio || '' }}</p>
               <div class="flex flex-wrap gap-1 mb-2">
-                <span v-for="cat in parseCategories(item.tags)" :key="cat" class="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded">{{ cat }}</span>
+                <span v-for="cat in parseCategories(item.tags)" :key="cat" class=" text-xs px-2 py-0.5 rounded">{{ cat }}</span>
               </div>
   <!--              <span class="text-xs text-gray-400 mt-auto">{{ formatDate(item.created_at) }}</span>-->
             </div>
@@ -352,17 +352,17 @@
         </div>
 
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-          <div v-for="item in organizations" :key="item.id" class="bg-white rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
+          <div v-for="item in organizations" :key="item.id" class=" rounded-xl border border-gray-200 shadow hover:shadow-lg transition flex flex-col cursor-pointer" @click="openTemplateModal(item)">
             <div class="flex items-center justify-between p-4 pb-0">
-              <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />
-              <span v-if="parseCategories(item.categories)" class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded">{{ parseCategories(item.categories)[0] }}</span>
+<!--              <img :src="getImageUrl(item.thumbnail) || 'https://via.placeholder.com/40'" alt="logo" class="w-10 h-10 rounded-md object-cover" />-->
+              <span v-if="parseCategories(item.categories)" class="text-xs ">{{ parseCategories(item.categories)[0] }}</span>
             </div>
             <div class="p-4 flex-1 flex flex-col">
               <h3 class="font-bold text-base mb-1 truncate" :title="item.name">{{ item.name }}</h3>
               <span class="text-xs text-gray-400 mb-2">by {{ item.by || 'Unknown' }}</span>
               <p class="text-sm text-gray-700 mb-3 line-clamp-3">{{ item.bio || '' }}</p>
               <div class="flex flex-wrap gap-1 mb-2">
-                <span v-for="cat in parseCategories(item.tags)" :key="cat" class="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded">{{ cat }}</span>
+                <span v-for="cat in parseCategories(item.tags)" :key="cat" class=" text-xs px-2 py-0.5 rounded">{{ cat }}</span>
               </div>
   <!--              <span class="text-xs text-gray-400 mt-auto">{{ formatDate(item.created_at) }}</span>-->
             </div>

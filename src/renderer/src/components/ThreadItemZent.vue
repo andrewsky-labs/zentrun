@@ -76,7 +76,7 @@
         <DialogDescription>{{ t('zent.preview.description', 'Review and execute your Zent') }}</DialogDescription>
       </DialogHeader>
 
-      <div class="flex-1 overflow-y-auto p-4 text-black">
+      <div class="flex-1 overflow-y-auto p-4 ">
         <form class="flex flex-col gap-4">
           <Label class="flex flex-col gap-1">
             <span class="font-semibold">{{ t('zent.preview.name', 'Name') }}</span>

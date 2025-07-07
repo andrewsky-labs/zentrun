@@ -1131,6 +1131,114 @@ How should these agents be executed? Respond with a JSON array of execution step
         updateThreadWorkingStatus(cached.threadId, 'completed')
       }
 
+      // 자동으로 코드 실행 (Automatically execute code when AI responds with code)
+      // This feature automatically detects and executes JavaScript or Python code in AI responses
+      if (enrichedMessage && (enrichedMessage as AssistantMessage).content && activeThreadId.value === cached.threadId) {
+        try {
+          console.log('Checking for code to auto-execute in AI response')
+          const mcpPresenter = usePresenter('mcpPresenter')
+          const { getMarkdown, parseMarkdownToStructure } = await import('@/lib/markdown.helper')
+
+          const assistantMsg = enrichedMessage as AssistantMessage
+          let hasJavaScriptCode = false
+          let hasPythonCode = false
+          let jsCode = null
+          let pythonCode = null
+
+          // Function to extract JavaScript code blocks from message content
+          const extractJavaScriptCode = (content) => {
+            if (!content) return null
+
+            const md = getMarkdown()
+            const parsedNodes = parseMarkdownToStructure(content, md)
+
+            // Find all JavaScript code blocks
+            const jsCodeBlocks = parsedNodes.filter(node =>
+              node.type === 'code_block' &&
+              (node.language === 'javascript' || node.language === 'js')
+            )
+
+            // If no code blocks found, return null
+            if (jsCodeBlocks.length === 0) return null
+
+            // Get the last JavaScript code block
+            const lastCodeBlock = jsCodeBlocks[jsCodeBlocks.length - 1]
+
+            // Return the code
+            return lastCodeBlock.code
+          }
+
+          // Function to extract Python code blocks from message content
+          const extractPythonCode = (content) => {
+            if (!content) return null
+
+            const md = getMarkdown()
+            const parsedNodes = parseMarkdownToStructure(content, md)
+
+            // Find all Python code blocks
+            const pythonCodeBlocks = parsedNodes.filter(node =>
+              node.type === 'code_block' &&
+              (node.language === 'python' || node.language === 'py')
+            )
+
+            // If no code blocks found, return null
+            if (pythonCodeBlocks.length === 0) return null
+
+            // Get the last Python code block
+            const lastCodeBlock = pythonCodeBlocks[pythonCodeBlocks.length - 1]
+
+            // Return the code
+            return lastCodeBlock.code
+          }
+
+          // Check for code blocks in the message content
+          for (const block of assistantMsg.content) {
+            if (block.type === 'content' && block.content) {
+              // Check for JavaScript code
+              const extractedJsCode = extractJavaScriptCode(block.content)
+              if (extractedJsCode) {
+                hasJavaScriptCode = true
+                jsCode = extractedJsCode
+                console.log('Found JavaScript code to auto-execute')
+              }
+
+              // Check for Python code
+              const extractedPyCode = extractPythonCode(block.content)
+              if (extractedPyCode) {
+                hasPythonCode = true
+                pythonCode = extractedPyCode
+                console.log('Found Python code to auto-execute')
+              }
+            }
+          }
+
+          // Execute JavaScript code if found
+          if (hasJavaScriptCode && jsCode) {
+            console.log('Auto-executing JavaScript code')
+            try {
+              const result = await mcpPresenter.runJavaScriptCode(jsCode)
+              console.log('JavaScript execution result:', result)
+            } catch (error) {
+              console.error('Error auto-executing JavaScript code:', error)
+            }
+          }
+
+          // Execute Python code if found
+          if (hasPythonCode && pythonCode) {
+            console.log('Auto-executing Python code')
+            try {
+              const cleanPythonCode = pythonCode.split('</antArtifact>')[0]
+              const result = await mcpPresenter.runPythonCode(cleanPythonCode)
+              console.log('Python execution result:', result)
+            } catch (error) {
+              console.error('Error auto-executing Python code:', error)
+            }
+          }
+        } catch (error) {
+          console.error('Error in auto-execute code feature:', error)
+        }
+      }
+
       // 检查窗口是否聚焦，如果未聚焦则发送通知
       const isFocused = await windowP.isMainWindowFocused()
       if (!isFocused) {
@@ -2049,44 +2157,84 @@ How should these agents be executed? Respond with a JSON array of execution step
                           }
                         );
 
-                        // Check if the result contains an image
-                        const imageMarkerIndex = result.indexOf('__IMAGE_DATA__:');
-                        const artifactStore = useArtifactStore();
+                        // Check if the result contains images
+                        let currentResult = result;
+                        const images = [];
+                        let imageMarkerIndex = currentResult.indexOf('__IMAGE_DATA__:');
 
-                        if (imageMarkerIndex !== -1) {
-                          // Split the result into text and image parts
-                          const textResult = result.substring(0, imageMarkerIndex).trim();
-                          const imageData = result.substring(imageMarkerIndex + '__IMAGE_DATA__:'.length);
+                        console.log("imageMarkerIndex3", imageMarkerIndex);
+                        // Extract all images from the result
+                        while (imageMarkerIndex !== -1) {
+                          // Get the text before the image marker
+                          const textBeforeImage = currentResult.substring(0, imageMarkerIndex).trim();
 
-                          // Create an artifact for the image
-                          const artifactId = `py-execution-${nanoid(6)}`;
-                          artifactStore.showArtifact(
-                            {
-                              id: artifactId,
-                              type: 'image/png',
-                              title: t('result', 'Result'),
-                              content: imageData,
-                              status: 'loaded'
-                            },
-                            systemMessage.id,
-                            conversationIdForAnswer
-                          );
-                        } else {
-                          // No image, just text output
-                          // Create an artifact for the code execution result
-                          const artifactId = `py-execution-${nanoid(6)}`;
-                          artifactStore.showArtifact(
-                            {
-                              id: artifactId,
-                              type: 'application/vnd.ant.code',
-                              title: t('executionResult', 'Execution Result'),
-                              content: result,
-                              status: 'loaded'
-                            },
-                            systemMessage.id,
-                            conversationIdForAnswer
-                          );
+                          // Find the end of the image data (next marker or end of string)
+                          const nextMarkerIndex = currentResult.indexOf('__IMAGE_DATA__:', imageMarkerIndex + 1);
+                          const imageDataEnd = nextMarkerIndex !== -1 ? nextMarkerIndex : currentResult.length;
+
+                          // Extract the image data
+                          const imageData = currentResult.substring(imageMarkerIndex + '__IMAGE_DATA__:'.length, imageDataEnd);
+
+                          // Add the image to the list
+                          images.push(imageData);
+
+                          // Update the current result to continue searching
+                          if (nextMarkerIndex !== -1) {
+                            currentResult = textBeforeImage + currentResult.substring(imageDataEnd);
+                            imageMarkerIndex = currentResult.indexOf('__IMAGE_DATA__:');
+                          } else {
+                            currentResult = textBeforeImage;
+                            imageMarkerIndex = -1;
+                          }
                         }
+                        //
+                        // // Create message blocks for the text and images
+                        // const messageBlocks = [];
+                        //
+                        // // Add text block if there's any text content
+                        // if (currentResult.trim()) {
+                        //   messageBlocks.push({
+                        //     type: 'content',
+                        //     content: currentResult.trim(),
+                        //     timestamp: Date.now(),
+                        //     status: 'success'
+                        //   });
+                        // }
+                        //
+                        // // Add image blocks for each image
+                        // for (let i = 0; i < images.length; i++) {
+                        //   messageBlocks.push({
+                        //     type: 'image',
+                        //     content: '',
+                        //     timestamp: Date.now(),
+                        //     status: 'success',
+                        //     image_data: {
+                        //       mimeType: 'image/png',
+                        //       data: images[i]
+                        //     }
+                        //   });
+                        // }
+                        //
+                        // // Update the message content with the new blocks
+                        // if (messageBlocks.length > 0) {
+                        //   await threadP.sendMessageByMessageManager(
+                        //     conversationIdForAnswer,
+                        //     JSON.stringify(messageBlocks),
+                        //     'assistant',
+                        //     userMessageId.id,
+                        //     false,
+                        //     {
+                        //       totalTokens: 0,
+                        //       generationTime: 0,
+                        //       firstTokenTime: 0,
+                        //       tokensPerSecond: 0,
+                        //       inputTokens: 0,
+                        //       outputTokens: 0,
+                        //       model: chatConfig.value.modelId,
+                        //       provider: chatConfig.value.providerId
+                        //     }
+                        //   );
+                        // }
                       }
                     }
 
@@ -2124,22 +2272,86 @@ How should these agents be executed? Respond with a JSON array of execution step
                           }
                         );
 
-                        // Create an artifact for the code execution result
-                        const artifactStore = useArtifactStore();
-                        const artifactId = `js-execution-${nanoid(6)}`;
-                        artifactStore.showArtifact(
-                          {
-                            id: artifactId,
-                            type: 'application/vnd.ant.code',
-                            title: t('executionResult', 'Execution Result'),
-                            content: result,
-                            status: 'loaded'
-                          },
-                          systemMessage.id,
-                          conversationIdForAnswer
-                        );
-                        console.log("artifactId");
-                        console.log(artifactId);
+
+                        // Check if the result contains images
+                        let currentResult = result;
+                        const images = [];
+                        let imageMarkerIndex = currentResult.indexOf('__IMAGE_DATA__:');
+
+                        // Extract all images from the result
+                        while (imageMarkerIndex !== -1) {
+                          // Get the text before the image marker
+                          const textBeforeImage = currentResult.substring(0, imageMarkerIndex).trim();
+
+                          // Find the end of the image data (next marker or end of string)
+                          const nextMarkerIndex = currentResult.indexOf('__IMAGE_DATA__:', imageMarkerIndex + 1);
+                          const imageDataEnd = nextMarkerIndex !== -1 ? nextMarkerIndex : currentResult.length;
+
+                          // Extract the image data
+                          const imageData = currentResult.substring(imageMarkerIndex + '__IMAGE_DATA__:'.length, imageDataEnd);
+
+                          // Add the image to the list
+                          images.push(imageData);
+
+                          // Update the current result to continue searching
+                          if (nextMarkerIndex !== -1) {
+                            currentResult = textBeforeImage + currentResult.substring(imageDataEnd);
+                            imageMarkerIndex = currentResult.indexOf('__IMAGE_DATA__:');
+                          } else {
+                            currentResult = textBeforeImage;
+                            imageMarkerIndex = -1;
+                          }
+                        }
+
+                        // Create message blocks for the text and images
+                        const messageBlocks = [];
+
+                        // Add text block if there's any text content
+                        if (currentResult.trim()) {
+                          messageBlocks.push({
+                            type: 'content',
+                            content: currentResult.trim(),
+                            timestamp: Date.now(),
+                            status: 'success'
+                          });
+                        }
+
+                        // Add image blocks for each image
+                        for (let i = 0; i < images.length; i++) {
+                          messageBlocks.push({
+                            type: 'image',
+                            content: '',
+                            timestamp: Date.now(),
+                            status: 'success',
+                            image_data: {
+                              mimeType: 'image/png',
+                              data: images[i]
+                            }
+                          });
+                        }
+
+                        // Update the message content with the new blocks
+                        if (messageBlocks.length > 0) {
+                          await threadP.sendMessageByMessageManager(
+                            conversationIdForAnswer,
+                            JSON.stringify(messageBlocks),
+                            'assistant',
+                            userMessageId.id,
+                            false,
+                            {
+                              totalTokens: 0,
+                              generationTime: 0,
+                              firstTokenTime: 0,
+                              tokensPerSecond: 0,
+                              inputTokens: 0,
+                              outputTokens: 0,
+                              model: chatConfig.value.modelId,
+                              provider: chatConfig.value.providerId
+                            }
+                          );
+                          console.log("messageBlocks");
+                          console.log(messageBlocks);
+                        }
                       }
                     }
                   }

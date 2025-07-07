@@ -189,7 +189,7 @@
               <div class="flex justify-between items-center">
                 <h3 class="text-lg font-medium">{{ t('team.agents.title', 'Agents') }}</h3>
                 <Button @click="$emit('addAgent', team)">
-                  <Icon icon="lucide:bot-plus" class="h-4 w-4 mr-2" />
+                  <Icon icon="lucide:plus" class="h-4 w-4 mr-2" />
                   {{ t('team.agents.addAgent', 'Add Agent') }}
                 </Button>
               </div>

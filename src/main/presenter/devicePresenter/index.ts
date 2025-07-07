@@ -287,6 +287,23 @@ export class DevicePresenter implements IDevicePresenter {
   }
 
   /**
+   * 打开文件选择对话框
+   * @param options 对话框选项
+   * @returns 返回所选文件的路径，如果用户取消则返回空数组
+   */
+  async openFileDialog(options: {
+    title?: string;
+    filters?: Array<{ name: string; extensions: string[] }>;
+    properties?: string[]
+  }): Promise<{ canceled: boolean; filePaths: string[] }> {
+    return dialog.showOpenDialog({
+      title: options.title,
+      filters: options.filters,
+      properties: options.properties || ['openFile']
+    })
+  }
+
+  /**
    * 重启应用程序
    */
   restartApp(): Promise<void> {

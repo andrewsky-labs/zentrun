@@ -225,19 +225,29 @@
   </div>
 
   <!-- Code execution result panel -->
-  <div v-if="runCodeResult" class="mt-2 p-3 bg-muted rounded-md text-sm">
+  <div v-if="runCodeResult || resultImages.length > 0" class="mt-2 p-3 bg-muted rounded-md text-sm">
     <div class="flex justify-between items-center mb-2">
-      <span class="font-medium">Code Execution Result</span>
+<!--      <span class="font-medium">Code Execution Result</span>-->
+        <div></div>
       <Button
         variant="ghost"
         size="sm"
         class="h-6 w-6 p-0"
-        @click="runCodeResult = ''"
+        @click="clearResults"
       >
         <Icon icon="lucide:x" class="h-4 w-4" />
       </Button>
     </div>
-    <pre class="whitespace-pre-wrap">{{ runCodeResult }}</pre>
+    <!-- Display result images -->
+    <div v-if="resultImages.length > 0" class="flex flex-col gap-3">
+      <div v-for="(image, index) in resultImages" :key="index" class="border border-border rounded-md overflow-hidden">
+        <div class="bg-gray-100 dark:bg-zinc-800 px-2 py-1 text-xs font-medium">
+          {{ t('common.image', 'Image') }} {{ index + 1 }}
+        </div>
+        <img :src="`${image}`" class="max-w-full" />
+      </div>
+    </div>
+    <p v-if="runCodeResult" class="whitespace-pre-wrap mb-3">{{ runCodeResult }}</p>
   </div>
     <ZentSavePanel
       v-show="showZentSavePanel"
@@ -264,6 +274,7 @@ import { getMarkdown, parseMarkdownToStructure, CodeBlockNode } from '@/lib/mark
 import { useArtifactStore } from '@/stores/artifact'
 import { useCodeBlockStore } from '@/stores/codeBlock'
 import { nanoid } from 'nanoid'
+import { useChatStore } from '@/stores/chat'
 
 const artifactStore = useArtifactStore()
 const codeBlockStore = useCodeBlockStore()
@@ -272,6 +283,15 @@ const showAutomationPanel = ref(false)
 const showRunCodeButton = ref(false)
 const runCodeResult = ref('')
 const isRunningCode = ref(false)
+const resultImages = ref<string[]>([])
+const chatStore = useChatStore()
+const threadPresenter = usePresenter('threadPresenter')
+
+// Function to clear both text result and images
+const clearResults = () => {
+  runCodeResult.value = ''
+  resultImages.value = []
+}
 
 // Function to extract JavaScript code blocks from message content
 const extractJavaScriptCode = (content) => {
@@ -469,6 +489,7 @@ const runJavaScriptCode = async () => {
 
   isRunningCode.value = true
   runCodeResult.value = ''
+  resultImages.value = [] // Clear previous images
 
   try {
     // For each content block of type 'content', extract and run JavaScript code
@@ -491,21 +512,46 @@ const runJavaScriptCode = async () => {
     if (jsCode) {
       // Execute the code using mcpPresenter
       const result = await mcpPresenter.runJavaScriptCode(jsCode)
-      runCodeResult.value = result
 
-      // Create an artifact for the code execution result
-      const artifactId = `js-execution-${nanoid(6)}`
-      artifactStore.showArtifact(
-        {
-          id: artifactId,
-          type: 'application/vnd.ant.code',
-          title: 'JavaScript Execution Result',
-          content: result,
-          status: 'loaded'
-        },
-        props.messageId,
-        props.threadId
-      )
+      // Check if the result contains images
+      const imageMarkerIndex = result.indexOf('__IMAGE_DATA__:')
+
+      console.log("imageMarkerIndex2", imageMarkerIndex);
+      if (imageMarkerIndex !== -1) {
+        // Handle multiple images in the result
+        let currentResult = result;
+        let currentImageMarkerIndex = currentResult.indexOf('__IMAGE_DATA__:');
+
+        // Extract all images from the result
+        while (currentImageMarkerIndex !== -1) {
+          // Get the text before the image marker
+          const textBeforeImage = currentResult.substring(0, currentImageMarkerIndex).trim();
+
+          // Find the end of the image data (next marker or end of string)
+          const nextMarkerIndex = currentResult.indexOf('__IMAGE_DATA__:', currentImageMarkerIndex + 1);
+          const imageDataEnd = nextMarkerIndex !== -1 ? nextMarkerIndex : currentResult.length;
+
+          // Extract the image data
+          const imageData = currentResult.substring(currentImageMarkerIndex + '__IMAGE_DATA__:'.length, imageDataEnd);
+
+          // Add the image to the resultImages array
+          resultImages.value.push(imageData);
+
+          // Update the current result to continue searching
+          if (nextMarkerIndex !== -1) {
+            currentResult = textBeforeImage + currentResult.substring(imageDataEnd);
+            currentImageMarkerIndex = currentResult.indexOf('__IMAGE_DATA__:');
+          } else {
+            currentResult = textBeforeImage;
+            currentImageMarkerIndex = -1;
+          }
+        }
+
+        // Set the text result for display in the message
+        runCodeResult.value = currentResult || 'Figures generated successfully'
+      } else {
+        runCodeResult.value = result
+      }
     }
   } catch (error) {
     runCodeResult.value = `Error: ${error.message}`
@@ -520,6 +566,7 @@ const runPythonCode = async () => {
 
   isRunningCode.value = true
   runCodeResult.value = ''
+  resultImages.value = [] // Clear previous images
 
   try {
     // For each content block of type 'content', extract and run Python code
@@ -543,47 +590,44 @@ const runPythonCode = async () => {
       // Execute the code using mcpPresenter
       const result = await mcpPresenter.runPythonCode(pythonCode.split('</antArtifact>')[0])
 
-      // Check if the result contains an image
+      // Check if the result contains images
       const imageMarkerIndex = result.indexOf('__IMAGE_DATA__:')
 
       if (imageMarkerIndex !== -1) {
-        // Split the result into text and image parts
-        const textResult = result.substring(0, imageMarkerIndex).trim()
-        const imageData = result.substring(imageMarkerIndex + '__IMAGE_DATA__:'.length)
+        // Handle multiple images in the result
+        let currentResult = result;
+        let currentImageMarkerIndex = currentResult.indexOf('__IMAGE_DATA__:');
+
+        // Extract all images from the result
+        while (currentImageMarkerIndex !== -1) {
+          // Get the text before the image marker
+          const textBeforeImage = currentResult.substring(0, currentImageMarkerIndex).trim();
+
+          // Find the end of the image data (next marker or end of string)
+          const nextMarkerIndex = currentResult.indexOf('__IMAGE_DATA__:', currentImageMarkerIndex + 1);
+          const imageDataEnd = nextMarkerIndex !== -1 ? nextMarkerIndex : currentResult.length;
+
+          // Extract the image data
+          const imageData = currentResult.substring(currentImageMarkerIndex + '__IMAGE_DATA__:'.length, imageDataEnd);
+
+          // Add the image to the resultImages array
+          resultImages.value.push(imageData);
+
+          // Update the current result to continue searching
+          if (nextMarkerIndex !== -1) {
+            currentResult = textBeforeImage + currentResult.substring(imageDataEnd);
+            currentImageMarkerIndex = currentResult.indexOf('__IMAGE_DATA__:');
+          } else {
+            currentResult = textBeforeImage;
+            currentImageMarkerIndex = -1;
+          }
+        }
 
         // Set the text result for display in the message
-        runCodeResult.value = textResult || 'Figure generated successfully'
-
-        // Create an artifact for the image
-        const artifactId = `py-execution-${nanoid(6)}`
-        artifactStore.showArtifact(
-          {
-            id: artifactId,
-            type: 'image/png',
-            title: 'Python Visualization Result',
-            content: imageData,
-            status: 'loaded'
-          },
-          props.messageId,
-          props.threadId
-        )
+        runCodeResult.value = currentResult || 'Figures generated successfully'
       } else {
         // No image, just text output
         runCodeResult.value = result
-
-        // Create an artifact for the code execution result
-        const artifactId = `py-execution-${nanoid(6)}`
-        artifactStore.showArtifact(
-          {
-            id: artifactId,
-            type: 'application/vnd.ant.code',
-            title: 'Python Execution Result',
-            content: result,
-            status: 'loaded'
-          },
-          props.messageId,
-          props.threadId
-        )
       }
     }
   } catch (error) {

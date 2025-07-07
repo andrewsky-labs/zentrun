@@ -31,13 +31,14 @@
       <div ref="scrollAnchor" class="h-8" />
     </div>
     <div v-if="showCancelButton" class="absolute bottom-2 left-1/2 -translate-x-1/2">
-      <Button variant="outline" size="sm" class="rounded-lg" @click="handleCancel">
+<!--      <Button variant="outline" size="sm" class="rounded-lg" @click="handleCancel">-->
+      <Button variant="outline" size="sm" class="rounded-lg">
         <Icon icon="lucide:loader" class="w-4 h-4 mr-2 animate-spin" />
-        <Icon
-          icon="lucide:square"
-          class="w-6 h-6 bg-red-500 p-1 text-primary-foreground rounded-full"
-        />
-        <span class="">{{ t('common.cancel') }}</span>
+<!--        <Icon-->
+<!--          icon="lucide:square"-->
+<!--          class="w-6 h-6 bg-red-500 p-1 text-primary-foreground rounded-full"-->
+<!--        />-->
+        <span class="">{{ t('generating...') }}</span>
       </Button>
     </div>
     <div

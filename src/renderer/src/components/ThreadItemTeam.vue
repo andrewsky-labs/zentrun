@@ -33,7 +33,7 @@
           <span>{{ t('thread.actions.details', 'Details') }}</span>
         </DropdownMenuItem>
         <DropdownMenuItem @select="$emit('addAgent', thread)">
-          <Icon icon="lucide:bot-plus" class="mr-2 h-4 w-4"/>
+          <Icon icon="lucide:plus" class="mr-2 h-4 w-4"/>
           <span>{{ t('thread.actions.addAgent') }}</span>
         </DropdownMenuItem>
         <DropdownMenuItem @select="$emit('rename', thread)">

@@ -7,7 +7,7 @@
     @click="$emit('select', thread)"
   >
     <div class="flex items-center truncate">
-<!--      <Icon v-if="thread.type === 'bot'" icon="lucide:bot" class="w-4 h-4 mr-2" />-->
+<!--      <Icon v-if="thread.type === 'bot'" icon="lucide:app-window" class="w-4 h-4 mr-2" />-->
       <Icon v-if="thread.type === 'zent'" icon="lucide:layout-grid" class="w-4 h-4 mr-2" />
 
       <Icon

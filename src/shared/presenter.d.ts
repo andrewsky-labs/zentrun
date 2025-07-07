@@ -281,6 +281,9 @@ export interface IConfigPresenter {
   getModelConfig(modelId: string, providerId?: string): ModelConfig
   setNotificationsEnabled(enabled: boolean): void
   getNotificationsEnabled(): boolean
+  // Miniconda installation
+  checkMinicondaInstalled(): Promise<boolean>
+  installMiniconda(): Promise<boolean>
 }
 export type RENDERER_MODEL_META = {
   id: string
@@ -549,6 +552,7 @@ export interface IDevicePresenter {
 
   // 目录选择和应用重启
   selectDirectory(): Promise<{ canceled: boolean; filePaths: string[] }>
+  openFileDialog(options: { title?: string; filters?: Array<{ name: string; extensions: string[] }>; properties?: string[] }): Promise<{ canceled: boolean; filePaths: string[] }>
   restartApp(): Promise<void>
 
   // 图片缓存

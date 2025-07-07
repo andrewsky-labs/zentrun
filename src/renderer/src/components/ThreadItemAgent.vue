@@ -2,9 +2,9 @@
   <div class="flex items-center px-2 py-1 hover:bg-accent rounded select-none group">
     <div class="flex items-center flex-1 cursor-pointer" @click="toggleFolder">
       <Icon :icon="thread.expanded ? 'lucide:chevron-down' : 'lucide:chevron-right'" class="w-4 h-4 mr-1" />
-<!--      <Icon icon="lucide:bot" class="w-4 h-4 mr-2" />-->
+      <Icon icon="lucide:app-window" class="w-4 h-4 mr-2" />
 
-        <img :src="getImageUrl(thread.thumbnail)" class="w-8 h-8 mr-2" style="border-radius: 10px" />
+<!--        <img :src="getImageUrl(thread.thumbnail)" class="w-8 h-8 mr-2" style="border-radius: 10px" />-->
 
       <span class="font-bold text-xs cursor-pointer" @click="$emit('view', thread)">{{ thread.name }}</span>
       <Icon v-if="thread.is_public" icon="lucide:globe" class="w-3 h-3 ml-1 text-blue-500" :title="t('public')" />
@@ -78,11 +78,11 @@
   <Dialog :open="showPreview" @update:open="showPreview = $event">
     <DialogContent class="max-w-4xl h-[80vh]">
       <DialogHeader>
-        <DialogTitle>{{ t('agent.preview.title', 'Execute Agent') }}</DialogTitle>
-        <DialogDescription>{{ t('agent.preview.description', 'Review and execute your Agent') }}</DialogDescription>
+        <DialogTitle>{{ t('agent.preview.title', 'Execute App') }}</DialogTitle>
+        <DialogDescription>{{ t('agent.preview.description', 'Review and execute your app') }}</DialogDescription>
       </DialogHeader>
 
-      <div class="flex-1 overflow-y-auto p-4 text-black">
+      <div class="flex-1 overflow-y-auto p-4 ">
         <form class="flex flex-col gap-4">
           <Label class="flex flex-col gap-1">
             <span class="font-semibold">{{ t('agent.preview.name', 'Name') }}</span>

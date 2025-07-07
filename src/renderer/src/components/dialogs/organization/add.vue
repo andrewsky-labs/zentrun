@@ -6,7 +6,7 @@
         <DialogDescription>{{ t('dialog.organization.add.createDesc') }}</DialogDescription>
       </DialogHeader>
       <!-- Step 1: Basic Organization Info -->
-      <form v-if="currentStep === 1" class="grid grid-cols-2 gap-6 p-2 flex-1 overflow-y-auto text-black">
+      <form v-if="currentStep === 1" class="grid grid-cols-2 gap-6 p-2 flex-1 overflow-y-auto ">
         <div class="flex flex-col gap-4 pr-3">
           <div>
             <Label class="block mb-1">{{ t('dialog.organization.add.nameLabel') }} <span class="text-red-500">*</span></Label>
@@ -16,17 +16,17 @@
             </div>
           </div>
           <div>
-            <Label class="block mb-1">{{ t('dialog.organization.add.descLabel') }} <span class="text-black">{{ t('Optional') }}</span></Label>
+            <Label class="block mb-1">{{ t('dialog.organization.add.descLabel') }} <span class="">{{ t('Optional') }}</span></Label>
             <Textarea v-model="description" :placeholder="t('dialog.organization.add.descPlaceholder')" rows="3" />
           </div>
           <div>
-            <Label class="block mb-1">{{ t('dialog.organization.add.bioLabel', 'Bio') }} <span class="text-black">{{ t('Optional') }}</span></Label>
+            <Label class="block mb-1">{{ t('dialog.organization.add.bioLabel', 'Bio') }} <span class="">{{ t('Optional') }}</span></Label>
             <Textarea v-model="bio" :placeholder="t('dialog.organization.add.bioPlaceholder', 'Enter organization bio')" rows="3" />
           </div>
           <!-- Permission is set to private by default and hidden from UI -->
-          <div>
-            <ThumbnailSelectorZpilot :isFullSize="true" v-model="thumbnail" :label="t('select-zpliot-thumbnail')" :required="true" />
-          </div>
+<!--          <div>-->
+<!--            <ThumbnailSelectorZpilot :isFullSize="true" v-model="thumbnail" :label="t('select-zpliot-thumbnail')" :required="true" />-->
+<!--          </div>-->
           <div class="flex justify-between items-center mt-4">
             <span class="text-xs text-muted-foreground">
               <Icon icon="lucide:info" class="inline h-4 w-4 mr-1 align-text-bottom" />
@@ -77,7 +77,7 @@
       </form>
 
       <!-- Step 2: Agency/Service-specific Information -->
-      <form v-if="currentStep === 2" class="flex flex-col gap-6 p-2 flex-1 overflow-y-auto text-black">
+      <form v-if="currentStep === 2" class="flex flex-col gap-6 p-2 flex-1 overflow-y-auto ">
         <div class="flex flex-col gap-4">
           <h3 class="text-lg font-medium">{{ t('payout') }}</h3>
 
@@ -307,7 +307,7 @@ const createOrganization = async () => {
   console.log("thumbnail");
   console.log(thumbnail);
   if (!name.value) missingFields.push(t("name"));
-  if (!thumbnail.value) missingFields.push(t('thumbnail'));
+  // if (!thumbnail.value) missingFields.push(t('thumbnail'));
 
   // Check for required fields in step 2 for service or agency mode
   if ((mode.value === 'service' || mode.value === 'agency') && currentStep.value === 2) {

@@ -19,6 +19,7 @@ import { IConfigPresenter } from '@shared/presenter'
 import { getErrorMessageLabels } from '@shared/i18n'
 import { OpenAI } from 'openai'
 import { presenter } from '@/presenter'
+import fs from "fs";
 
 // 定义MCP工具接口
 interface MCPTool {
@@ -880,7 +881,18 @@ export class McpPresenter implements IMCPPresenter {
     const fs = require('fs');
     const path = require('path');
     const os = require('os');
-    const dataDir = path.join(os.homedir(), '.config/zentrun');
+    const dataDir = path.join(os.homedir(), '.config/Zentrun');
+
+    // Get active conversation ID for image file naming
+    let conversation_id = 'default';
+    try {
+      const activeConversation = await presenter.threadPresenter.getActiveConversation();
+      if (activeConversation) {
+        conversation_id = activeConversation.id;
+      }
+    } catch (error) {
+      console.error('[MCP] Error getting active conversation ID:', error);
+    }
 
     if (!fs.existsSync(dataDir)) {
       try {
@@ -935,20 +947,33 @@ export class McpPresenter implements IMCPPresenter {
     } catch (error) {
       console.error('[MCP] Error getting LLM provider information:', error);
     }
-
+    let capturedLogs = [];
     try {
       // Create a new VM instance with sandbox
       const vm = new VM({
         timeout: 50 * 1000 * 1000, // 50 second timeout
         sandbox: {
+
+            log: (...args) => {
+              const msg = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)).join(' ');
+              capturedLogs.push(msg);
+            },
+
           console: {
-            log: (...args: any[]) => {
-              // Capture console.log output
-              return args.map(arg =>
-                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-              ).join(' ')
+
+            log: (...args) => {
+              const msg = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)).join(' ');
+              capturedLogs.push(msg);
             }
           },
+          // console: {
+          //   log: (...args: any[]) => {
+          //     // Capture console.log output
+          //     return args.map(arg =>
+          //       typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+          //     ).join(' ')
+          //   }
+          // },
           setTimeout: (callback: Function, ms: number) => {
             if (ms > 5000) ms = 5000 // Limit setTimeout to 5 seconds
             return setTimeout(callback, ms)
@@ -995,11 +1020,13 @@ export class McpPresenter implements IMCPPresenter {
                 'execa - Process execution library',
                 'lodash - Utility library',
                 'chart.js - Chart generation library',
+                'csv-parser - CSV parse library',
+                'quickchart-js - Chart generation library',
                 'mathjs - Math library'
               ],
               fsModule: {
                 description: 'File system operations (restricted to safe directories)',
-                allowedDirectories: ['/tmp', path.join(os.homedir(), '.config/zentrun')],
+                allowedDirectories: ['/tmp', path.join(os.homedir(), '.config/Zentrun')],
                 functions: [
                   'readFileSync(path, options) - Read a file synchronously',
                   'writeFileSync(path, data, options) - Write to a file synchronously',
@@ -1092,13 +1119,13 @@ export class McpPresenter implements IMCPPresenter {
                 "const fs = require('fs');",
                 "const path = require('path');",
                 "const os = require('os');",
-                "const filePath = path.join(os.homedir(), '.config/zentrun', 'test.txt');",
+                "const filePath = path.join(os.homedir(), '.config/Zentrun', 'test.txt');",
                 "fs.writeFileSync(filePath, 'Hello, world!');",
                 "console.log(fs.readFileSync(filePath, 'utf8'));",
                 "",
                 "// Use fs-extra for enhanced file operations",
                 "const fse = require('fs-extra');",
-                "const dataDir = path.join(os.homedir(), '.config/zentrun');",
+                "const dataDir = path.join(os.homedir(), '.config/Zentrun');",
                 "fse.ensureDirSync(path.join(dataDir, 'subdir'));",
                 "fse.writeJsonSync(path.join(dataDir, 'config.json'), { setting: 'value' });",
                 "console.log(fse.readJsonSync(path.join(dataDir, 'config.json')));"
@@ -1125,133 +1152,133 @@ export class McpPresenter implements IMCPPresenter {
             // List of allowed modules that could be safely mocked
             const safeModules: Record<string, any> = {
               // Safe wrapper around fs module with limited functionality
-              'fs': {
-                // Only allow reading files from specific directories
-                readFileSync: (filePath: string, options?: any) => {
-                  // Convert to absolute path
-                  const absPath = path.resolve(filePath);
-
-                  // Define allowed directories (can be expanded as needed)
-                  const allowedDirs = [
-                    '/tmp',
-                    path.join(os.homedir(), '.config/zentrun')
-                  ];
-
-                  // Check if the path is within allowed directories
-                  const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
-
-                  if (!isAllowed) {
-                    throw new Error(`Access denied: Cannot read from '${filePath}'. Only files in allowed directories can be accessed.`);
-                  }
-
-                  // If allowed, perform the actual read
-                  return fs.readFileSync(absPath, options);
-                },
-
-                // Only allow writing files to specific directories
-                writeFileSync: (filePath: string, data: any, options?: any) => {
-                  // Convert to absolute path
-                  const absPath = path.resolve(filePath);
-
-                  // Define allowed directories for writing
-                  const allowedDirs = [
-                    '/tmp',
-                    path.join(os.homedir(), '.config/zentrun')
-                  ];
-
-                  // Check if the path is within allowed directories
-                  const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
-
-                  if (!isAllowed) {
-                    throw new Error(`Access denied: Cannot write to '${filePath}'. Only files in allowed directories can be modified.`);
-                  }
-
-                  // If allowed, perform the actual write
-                  return fs.writeFileSync(absPath, data, options);
-                },
-
-                // List files in a directory (only in allowed directories)
-                readdirSync: (dirPath: string, options?: any) => {
-                  // Convert to absolute path
-                  const absPath = path.resolve(dirPath);
-
-                  // Define allowed directories
-                  const allowedDirs = [
-                    '/tmp',
-                    path.join(os.homedir(), '.config/zentrun')
-                  ];
-
-                  // Check if the path is within allowed directories
-                  const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
-
-                  if (!isAllowed) {
-                    throw new Error(`Access denied: Cannot read directory '${dirPath}'. Only allowed directories can be accessed.`);
-                  }
-
-                  // If allowed, perform the actual directory read
-                  return fs.readdirSync(absPath, options);
-                },
-
-                // Check if a file exists (only in allowed directories)
-                existsSync: (path: string) => {
-                  // Convert to absolute path
-                  const absPath = path.resolve(path);
-
-                  // Define allowed directories
-                  const allowedDirs = [
-                    '/tmp',
-                    path.join(os.homedir(), '.config/zentrun')
-                  ];
-
-                  // Check if the path is within allowed directories
-                  const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
-
-                  if (!isAllowed) {
-                    throw new Error(`Access denied: Cannot check existence of '${path}'. Only files in allowed directories can be accessed.`);
-                  }
-
-                  // If allowed, perform the actual check
-                  return fs.existsSync(absPath);
-                },
-
-                // List allowed directories for user reference
-                listAllowedDirectories: () => {
-                  return [
-                    '/tmp',
-                    path.join(os.homedir(), '.config/zentrun')
-                  ];
-                }
-              },
-
-              // Safe wrapper around path module
-              'path': {
-                join: path.join,
-                resolve: path.resolve,
-                basename: path.basename,
-                dirname: path.dirname,
-                extname: path.extname,
-                parse: path.parse,
-                format: path.format,
-                isAbsolute: path.isAbsolute,
-                relative: path.relative,
-                normalize: path.normalize,
-                sep: path.sep
-              },
-
-              // Safe wrapper around os module with limited functionality
-              'os': {
-                platform: require('os').platform,
-                arch: require('os').arch,
-                cpus: require('os').cpus,
-                freemem: require('os').freemem,
-                totalmem: require('os').totalmem,
-                homedir: require('os').homedir,
-                tmpdir: require('os').tmpdir,
-                hostname: require('os').hostname,
-                type: require('os').type,
-                release: require('os').release,
-                EOL: require('os').EOL
-              },
+              // 'fs': {
+              //   // Only allow reading files from specific directories
+              //   readFileSync: (filePath: string, options?: any) => {
+              //     // Convert to absolute path
+              //     const absPath = path.resolve(filePath);
+              //
+              //     // Define allowed directories (can be expanded as needed)
+              //     const allowedDirs = [
+              //       '/tmp',
+              //       path.join(os.homedir(), '.config/Zentrun')
+              //     ];
+              //
+              //     // Check if the path is within allowed directories
+              //     const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
+              //
+              //     if (!isAllowed) {
+              //       throw new Error(`Access denied: Cannot read from '${filePath}'. Only files in allowed directories can be accessed.`);
+              //     }
+              //
+              //     // If allowed, perform the actual read
+              //     return fs.readFileSync(absPath, options);
+              //   },
+              //
+              //   // Only allow writing files to specific directories
+              //   writeFileSync: (filePath: string, data: any, options?: any) => {
+              //     // Convert to absolute path
+              //     const absPath = path.resolve(filePath);
+              //
+              //     // Define allowed directories for writing
+              //     const allowedDirs = [
+              //       '/tmp',
+              //       path.join(os.homedir(), '.config/Zentrun')
+              //     ];
+              //
+              //     // Check if the path is within allowed directories
+              //     const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
+              //
+              //     if (!isAllowed) {
+              //       throw new Error(`Access denied: Cannot write to '${filePath}'. Only files in allowed directories can be modified.`);
+              //     }
+              //
+              //     // If allowed, perform the actual write
+              //     return fs.writeFileSync(absPath, data, options);
+              //   },
+              //
+              //   // List files in a directory (only in allowed directories)
+              //   readdirSync: (dirPath: string, options?: any) => {
+              //     // Convert to absolute path
+              //     const absPath = path.resolve(dirPath);
+              //
+              //     // Define allowed directories
+              //     const allowedDirs = [
+              //       '/tmp',
+              //       path.join(os.homedir(), '.config/Zentrun')
+              //     ];
+              //
+              //     // Check if the path is within allowed directories
+              //     const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
+              //
+              //     if (!isAllowed) {
+              //       throw new Error(`Access denied: Cannot read directory '${dirPath}'. Only allowed directories can be accessed.`);
+              //     }
+              //
+              //     // If allowed, perform the actual directory read
+              //     return fs.readdirSync(absPath, options);
+              //   },
+              //
+              //   // Check if a file exists (only in allowed directories)
+              //   existsSync: (path: string) => {
+              //     // Convert to absolute path
+              //     const absPath = path.resolve(path);
+              //
+              //     // Define allowed directories
+              //     const allowedDirs = [
+              //       '/tmp',
+              //       path.join(os.homedir(), '.config/Zentrun')
+              //     ];
+              //
+              //     // Check if the path is within allowed directories
+              //     const isAllowed = allowedDirs.some(dir => absPath.startsWith(dir));
+              //
+              //     if (!isAllowed) {
+              //       throw new Error(`Access denied: Cannot check existence of '${path}'. Only files in allowed directories can be accessed.`);
+              //     }
+              //
+              //     // If allowed, perform the actual check
+              //     return fs.existsSync(absPath);
+              //   },
+              //
+              //   // List allowed directories for user reference
+              //   listAllowedDirectories: () => {
+              //     return [
+              //       '/tmp',
+              //       path.join(os.homedir(), '.config/Zentrun')
+              //     ];
+              //   }
+              // },
+              //
+              // // Safe wrapper around path module
+              // 'path': {
+              //   join: path.join,
+              //   resolve: path.resolve,
+              //   basename: path.basename,
+              //   dirname: path.dirname,
+              //   extname: path.extname,
+              //   parse: path.parse,
+              //   format: path.format,
+              //   isAbsolute: path.isAbsolute,
+              //   relative: path.relative,
+              //   normalize: path.normalize,
+              //   sep: path.sep
+              // },
+              //
+              // // Safe wrapper around os module with limited functionality
+              // 'os': {
+              //   platform: require('os').platform,
+              //   arch: require('os').arch,
+              //   cpus: require('os').cpus,
+              //   freemem: require('os').freemem,
+              //   totalmem: require('os').totalmem,
+              //   homedir: require('os').homedir,
+              //   tmpdir: require('os').tmpdir,
+              //   hostname: require('os').hostname,
+              //   type: require('os').type,
+              //   release: require('os').release,
+              //   EOL: require('os').EOL
+              // },
 
               // Safe wrapper around crypto module with limited functionality
               'crypto': {
@@ -1265,6 +1292,9 @@ export class McpPresenter implements IMCPPresenter {
               'buffer': {
                 Buffer: Buffer
               },
+              // 'fs': require('fs'),
+              'path': require('path'),
+              'os': require('os'),
 
               // Additional libraries as requested
               'better-sqlite3': require('better-sqlite3'),
@@ -1279,9 +1309,12 @@ export class McpPresenter implements IMCPPresenter {
               'csv-parse': require('csv-parse'),
               'json2csv': require('json2csv'),
               'vm2': require('vm2'),
+              'fs': require('fs'),
               'execa': require('execa'),
               'lodash': require('lodash'),
               'chart.js': require('chart.js'),
+              'csv-parser': require('csv-parser'),
+              'quickchart-js': require('quickchart-js'),
               'mathjs': require('mathjs')
             };
 
@@ -1295,54 +1328,92 @@ export class McpPresenter implements IMCPPresenter {
         },
         eval: false,      // Don't allow eval
         wasm: false,      // Don't allow WebAssembly
-        allowAsync: true  // Allow async/await
+        allowAsync: true,  // Allow async/await
       })
 
       // Wrap the code to capture console.log output and handle errors properly
-      const wrappedCode = `
-        const logs = [];
-        const originalConsoleLog = console.log;
-        console.log = function(...args) {
-          const result = originalConsoleLog(...args);
-          logs.push(result);
-          return result;
-        };
-
-        (async function() {
-          try {
-            // Execute the user code in an async IIFE
-            const result = await (async () => {
-              ${code}
-            })();
-
-            // Handle the result
-            if (result !== undefined) {
-              logs.push(typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result));
-            }
-          } catch (error) {
-            // Catch and log any errors that occur during execution
-            logs.push(error.message);
-            console.log('Error executing code:', error.message);
-          }
-
-          // Always return logs, even if there was an error
-          return logs;
-        })();
-      `;
+      const wrappedCode = code;
 
       // Run the code in the VM and await the result
-      const result = await vm.run(wrappedCode);
-
+      // const result = await vm.run(wrappedCode);
+      await vm.run(wrappedCode);
+      const result = capturedLogs;
+      console.log('Result:', result);
       // Format the result
+      let formattedResult = '';
       if (Array.isArray(result)) {
-        return result.join('\n');
+        formattedResult = result.join('\n');
       } else if (result !== undefined) {
-        return typeof result === 'object'
+        formattedResult = typeof result === 'object'
           ? JSON.stringify(result, null, 2)
           : String(result);
+      } else {
+        formattedResult = 'Code executed successfully with no output';
       }
 
-      return 'Code executed successfully with no output';
+      // Check for image files in the .config/Zentrun directory that match the pattern conversation_id_*.png
+      const imageFiles = [];
+      try {
+        const files = fs.readdirSync(dataDir);
+        for (const file of files) {
+          if (file.startsWith(`${conversation_id}_`) && file.endsWith('.png')) {
+            imageFiles.push(file);
+          }
+        }
+      } catch (error) {
+        console.error(`[MCP] Error reading directory: ${error.message}`);
+      }
+
+      // If image files were found, read them and convert to base64
+      if (imageFiles.length > 0) {
+        // Sort the image files by their numeric part to maintain order
+        imageFiles.sort((a, b) => {
+          const numA = parseInt(a.split('_')[1].split('.')[0]);
+          const numB = parseInt(b.split('_')[1].split('.')[0]);
+          return numA - numB;
+        });
+
+        // If there's no text output but images were found
+        if (!formattedResult) {
+          formattedResult = `${imageFiles.length} figure(s) generated successfully`;
+        }
+
+        // Process each image file
+        for (const imageFile of imageFiles) {
+          try {
+            const imagePath = path.join(dataDir, imageFile);
+            const imageData = fs.readFileSync(imagePath);
+            const base64Image = imageData.toString('base64');
+
+            // Append the base64 image data to the result with a special marker
+            formattedResult += `\n\n__IMAGE_DATA__:data:image/png;base64,${base64Image}`;
+
+            // Clean up the image file after processing
+            fs.unlinkSync(imagePath);
+          } catch (imageError) {
+            console.error(`[MCP] Failed to process image file ${imageFile}: ${imageError.message}`);
+          }
+        }
+      }
+
+      // For backward compatibility, also check for the old output_figure.png
+      const outputImageFile = path.join(dataDir, 'output_figure.png');
+      if (fs.existsSync(outputImageFile)) {
+        try {
+          const imageData = fs.readFileSync(outputImageFile);
+          const base64Image = imageData.toString('base64');
+
+          // Append the base64 image data to the result with a special marker
+          formattedResult += `\n\n__IMAGE_DATA__:data:image/png;base64,${base64Image}`;
+
+          // Clean up the image file after processing
+          fs.unlinkSync(outputImageFile);
+        } catch (imageError) {
+          console.error(`[MCP] Failed to process output image: ${imageError.message}`);
+        }
+      }
+
+      return formattedResult;
     } catch (error) {
       console.error('[MCP] Error executing JavaScript code:', error);
       return `Error executing code: ${error.message}`;
@@ -1357,24 +1428,56 @@ export class McpPresenter implements IMCPPresenter {
   async runPythonCode(code: string): Promise<string> {
     console.log('[MCP] Running Python code')
 
-    // Get Python interpreter path from settings
-    const pythonInterpreterPath = await this.configPresenter.getSetting('pythonInterpreterPath');
-
-    if (!pythonInterpreterPath) {
-      return 'Error: Python interpreter path not configured. Please set it in Settings > Common Settings.';
-    }
-
     // Ensure data directory exists for file operations
     const fs = require('fs');
     const path = require('path');
     const os = require('os');
     const { exec } = require('child_process');
     const { promisify } = require('util');
+
+    // Get Python interpreter path from settings
+    let pythonInterpreterPath = await this.configPresenter.getSetting('pythonInterpreterPath');
+
+    if (!pythonInterpreterPath) {
+      console.log('[MCP] Python interpreter path not configured, setting default based on OS');
+
+      // Get app path
+      const app = require('electron').app;
+      const appPath = app.getAppPath().replace('app.asar', 'app.asar.unpacked');
+
+      // Determine OS-specific path to python executable
+      const platform = process.platform;
+      const pythonInterpreterDir = path.join(appPath, 'resources', 'python_interpreter');
+
+      if (platform === 'win32') {
+        pythonInterpreterPath = path.join(pythonInterpreterDir, 'win', 'miniconda3', 'python.exe');
+      } else if (platform === 'darwin') {
+        pythonInterpreterPath = path.join(pythonInterpreterDir, 'mac', 'miniconda3', 'bin', 'python');
+      } else if (platform === 'linux') {
+        pythonInterpreterPath = path.join(pythonInterpreterDir, 'linux', 'miniconda3', 'bin', 'python');
+      }
+
+      // Save the path to settings
+      // await this.configPresenter.setSetting('pythonInterpreterPath', pythonInterpreterPath);
+      console.log(`[MCP] Set Python interpreter path to: ${pythonInterpreterPath}`);
+    }
+
     const execPromise = promisify(exec);
 
-    const dataDir = path.join(os.homedir(), '.config/zentrun');
+    const dataDir = path.join(os.homedir(), '.config/Zentrun');
     const tempPythonFile = path.join(dataDir, 'temp_script.py');
     const outputImageFile = path.join(dataDir, 'output_figure.png');
+
+    // Get active conversation ID for image file naming
+    let conversation_id = 'default';
+    try {
+      const activeConversation = await presenter.threadPresenter.getActiveConversation();
+      if (activeConversation) {
+        conversation_id = activeConversation.id;
+      }
+    } catch (error) {
+      console.error('[MCP] Error getting active conversation ID:', error);
+    }
 
     if (!fs.existsSync(dataDir)) {
       try {
@@ -1434,10 +1537,10 @@ export class McpPresenter implements IMCPPresenter {
 
     try {
       const modifiedCode = code;
-      console.log("code");
-      console.log(code);
-      console.log("modifiedCode");
-      console.log(modifiedCode);
+      // console.log("code");
+      // console.log(code);
+      // console.log("modifiedCode");
+      // console.log(modifiedCode);
 
       // Write the modified Python code to a temporary file
       fs.writeFileSync(tempPythonFile, modifiedCode);
@@ -1474,20 +1577,60 @@ export class McpPresenter implements IMCPPresenter {
       }
 
 
-      console.log("stdout", stdout);
-      console.log("stderr", stderr);
+      // console.log("stdout", stdout);
+      // console.log("stderr", stderr);
+      console.log("conversation_id", conversation_id);
 
-      // Check if a figure was captured
-      const hasFigure = stdout.includes('__FIGURE_CAPTURED__');
+      // Remove any __FIGURE_CAPTURED__ markers from the output for backward compatibility
       let result = stdout.replace('__FIGURE_CAPTURED__', '').trim();
 
-      // If there's no text output but a figure was captured
-      if (!result && hasFigure) {
-        result = 'Figure generated successfully';
+      // Check for image files in the .config/Zentrun directory that match the pattern conversation_id_*.png
+      const imageFiles = [];
+      try {
+        const files = fs.readdirSync(dataDir);
+        for (const file of files) {
+          if (file.startsWith(`${conversation_id}_`) && file.endsWith('.png')) {
+            imageFiles.push(file);
+          }
+        }
+      } catch (error) {
+        console.error(`[MCP] Error reading directory: ${error.message}`);
       }
 
-      // If a figure was captured, read it and convert to base64
-      if (hasFigure && fs.existsSync(outputImageFile)) {
+      // If image files were found, read them and convert to base64
+      if (imageFiles.length > 0) {
+        // Sort the image files by their numeric part to maintain order
+        imageFiles.sort((a, b) => {
+          const numA = parseInt(a.split('_')[1].split('.')[0]);
+          const numB = parseInt(b.split('_')[1].split('.')[0]);
+          return numA - numB;
+        });
+
+        // If there's no text output but images were found
+        if (!result) {
+          result = `${imageFiles.length} figure(s) generated successfully`;
+        }
+
+        // Process each image file
+        for (const imageFile of imageFiles) {
+          try {
+            const imagePath = path.join(dataDir, imageFile);
+            const imageData = fs.readFileSync(imagePath);
+            const base64Image = imageData.toString('base64');
+
+            // Append the base64 image data to the result with a special marker
+            result += `\n\n__IMAGE_DATA__:data:image/png;base64,${base64Image}`;
+
+            // Clean up the image file after processing
+            fs.unlinkSync(imagePath);
+          } catch (imageError) {
+            console.error(`[MCP] Failed to process image file ${imageFile}: ${imageError.message}`);
+          }
+        }
+      }
+
+      // For backward compatibility, also check for the old output_figure.png
+      if (fs.existsSync(outputImageFile)) {
         try {
           const imageData = fs.readFileSync(outputImageFile);
           const base64Image = imageData.toString('base64');
@@ -1495,24 +1638,27 @@ export class McpPresenter implements IMCPPresenter {
           // Append the base64 image data to the result with a special marker
           result += `\n\n__IMAGE_DATA__:data:image/png;base64,${base64Image}`;
 
-          // Clean up the image file
+          // Clean up the image file after processing
           fs.unlinkSync(outputImageFile);
         } catch (imageError) {
           console.error(`[MCP] Failed to process output image: ${imageError.message}`);
         }
       }
 
-      // Clean up the temporary file
-      try {
-        fs.unlinkSync(tempPythonFile);
-      } catch (cleanupError) {
-        console.error(`[MCP] Failed to clean up temporary Python file: ${cleanupError.message}`);
-      }
+      // // Clean up the temporary file
+      // try {
+      //   fs.unlinkSync(tempPythonFile);
+      // } catch (cleanupError) {
+      //   console.error(`[MCP] Failed to clean up temporary Python file: ${cleanupError.message}`);
+      // }
 
-      // Return the result
-      if (stderr) {
-        return `${stderr}`;
-      }
+      // // Return the result
+      // if (stderr) {
+      //   return `${stderr}`;
+      // }
+
+      // console.log("result");
+      // console.log(result);
 
       return result || 'Code executed successfully with no output';
     } catch (error) {
@@ -1520,126 +1666,133 @@ export class McpPresenter implements IMCPPresenter {
 
       // Check if this is a ModuleNotFoundError
       const moduleNotFoundRegex = /ModuleNotFoundError: No module named '([^']+)'/;
+      const pipInstallRegex = /\$ pip install\s+(?:--upgrade\s+)?([^\s]+(?:\s+[^\s]+)*)/;
       let moduleMatch = null;
 
       // Check in stderr first
       if (stderr) {
-        moduleMatch = stderr.match(moduleNotFoundRegex);
+        moduleMatch = stderr.match(moduleNotFoundRegex) || stderr.match(pipInstallRegex);
       }
 
       // If not found in stderr, check in error.stderr
       if (!moduleMatch && error.stderr) {
-        moduleMatch = error.stderr.match(moduleNotFoundRegex);
+        moduleMatch = error.stderr.match(moduleNotFoundRegex) || error.stderr.match(pipInstallRegex);
       }
 
       // If not found in error.stderr, check in error.message
       if (!moduleMatch && error.message) {
-        moduleMatch = error.message.match(moduleNotFoundRegex);
+        moduleMatch = error.message.match(moduleNotFoundRegex) || error.message.match(pipInstallRegex);
       }
 
       // If we found a missing module, try to install it and retry
       if (moduleMatch && moduleMatch[1]) {
-        const missingModule = moduleMatch[1];
-        console.log(`[MCP] Detected missing module: ${missingModule}. Attempting to install...`);
+        // Extract the module name(s)
+        let missingModules = moduleMatch[1].split(/\s+/).filter(Boolean);
+        console.log(`[MCP] Detected missing module(s): ${missingModules.join(', ')}. Attempting to install...`);
 
         try {
           // Keep the temporary file for retry
-          // Install the missing module
-          const { stdout: installStdout, stderr: installStderr } = await execPromise(
-            `"${pythonInterpreterPath}" -m pip install ${missingModule}`,
-            { timeout: 60000 } // 60 second timeout for installation
-          );
+          // Install the missing modules
+          for (const module of missingModules) {
+            console.log(`[MCP] Installing module: ${module}`);
+            const { stdout: installStdout, stderr: installStderr } = await execPromise(
+              `"${pythonInterpreterPath}" -m pip install ${module}`,
+              { timeout: 60000 } // 60 second timeout for installation
+            );
 
-          console.log(`[MCP] Module installation result: ${installStdout}`);
-          if (installStderr) {
-            console.error(`[MCP] Module installation error: ${installStderr}`);
-          }
-
-          // If installation was successful, retry running the code
-          if (!installStderr || !installStderr.includes('ERROR')) {
-            console.log(`[MCP] Retrying Python code execution after installing ${missingModule}`);
-
-            // Retry executing the Python code
-            try {
-              const { stdout: retryStdout, stderr: retryStderr } = await execPromise(
-                `"${pythonInterpreterPath}" "${tempPythonFile}"`,
-                {
-                  timeout: 50000 * 1000, // 50 second timeout
-                  env: {
-                    ...process.env,
-                    LLM_PROVIDER_NAME: llmProviderName,
-                    LLM_PROVIDER_TYPE: llmProviderType,
-                    LLM_MODEL_ID: llmModelId,
-                    LLM_BASE_URL: llmBaseUrl,
-                    LLM_API_KEY: llmApiKey
-                  }
-                }
-              );
-
-              // Clean up the temporary files after successful retry
-              try {
-                if (fs.existsSync(tempPythonFile)) {
-                  fs.unlinkSync(tempPythonFile);
-                }
-                if (fs.existsSync(outputImageFile)) {
-                  fs.unlinkSync(outputImageFile);
-                }
-              } catch (cleanupError) {
-                console.error(`[MCP] Failed to clean up temporary files: ${cleanupError.message}`);
-              }
-
-              // Check if a figure was captured in the retry
-              const hasFigure = retryStdout.includes('__FIGURE_CAPTURED__');
-              let result = retryStdout.replace('__FIGURE_CAPTURED__', '').trim();
-
-              // If there's no text output but a figure was captured
-              if (!result && hasFigure) {
-                result = 'Figure generated successfully';
-              }
-
-              // If a figure was captured, read it and convert to base64
-              if (hasFigure && fs.existsSync(outputImageFile)) {
-                try {
-                  const imageData = fs.readFileSync(outputImageFile);
-                  const base64Image = imageData.toString('base64');
-
-                  // Append the base64 image data to the result with a special marker
-                  result += `\n\n__IMAGE_DATA__:data:image/png;base64,${base64Image}`;
-
-                  // Clean up the image file
-                  fs.unlinkSync(outputImageFile);
-                } catch (imageError) {
-                  console.error(`[MCP] Failed to process output image: ${imageError.message}`);
-                }
-              }
-
-              // Return the result of the retry
-              if (retryStderr) {
-                return `${retryStderr}`;
-              }
-
-              return result || 'Code executed successfully with no output';
-            } catch (retryError) {
-              // If retry fails, continue with normal error handling
-              console.error('[MCP] Retry after module installation failed:', retryError);
-              stdout = retryError.stdout || stdout;
-              stderr = retryError.stderr || stderr;
-              error = retryError;
+            console.log(`[MCP] Module installation result for ${module}: ${installStdout}`);
+            if (installStderr) {
+              console.error(`[MCP] Module installation error for ${module}: ${installStderr}`);
             }
           }
+
+          this.runPythonCode(code);
+
+          // If installation was successful, retry running the code
+          // if (!installStderr || !installStderr.includes('ERROR')) {
+          //   console.log(`[MCP] Retrying Python code execution after installing ${missingModule}`);
+          //
+          //   // Retry executing the Python code
+          //   try {
+          //     const { stdout: retryStdout, stderr: retryStderr } = await execPromise(
+          //       `"${pythonInterpreterPath}" "${tempPythonFile}"`,
+          //       {
+          //         timeout: 50000 * 1000, // 50 second timeout
+          //         env: {
+          //           ...process.env,
+          //           LLM_PROVIDER_NAME: llmProviderName,
+          //           LLM_PROVIDER_TYPE: llmProviderType,
+          //           LLM_MODEL_ID: llmModelId,
+          //           LLM_BASE_URL: llmBaseUrl,
+          //           LLM_API_KEY: llmApiKey
+          //         }
+          //       }
+          //     );
+          //
+          //     // // Clean up the temporary files after successful retry
+          //     // try {
+          //     //   if (fs.existsSync(tempPythonFile)) {
+          //     //     fs.unlinkSync(tempPythonFile);
+          //     //   }
+          //     //   if (fs.existsSync(outputImageFile)) {
+          //     //     fs.unlinkSync(outputImageFile);
+          //     //   }
+          //     // } catch (cleanupError) {
+          //     //   console.error(`[MCP] Failed to clean up temporary files: ${cleanupError.message}`);
+          //     // }
+          //
+          //     // Check if a figure was captured in the retry
+          //     const hasFigure = retryStdout.includes('__FIGURE_CAPTURED__');
+          //     let result = retryStdout.replace('__FIGURE_CAPTURED__', '').trim();
+          //
+          //     // If there's no text output but a figure was captured
+          //     if (!result && hasFigure) {
+          //       result = 'Figure generated successfully3';
+          //     }
+          //
+          //     // If a figure was captured, read it and convert to base64
+          //     if (hasFigure && fs.existsSync(outputImageFile)) {
+          //       try {
+          //         const imageData = fs.readFileSync(outputImageFile);
+          //         const base64Image = imageData.toString('base64');
+          //
+          //         // Append the base64 image data to the result with a special marker
+          //         result += `\n\n__IMAGE_DATA__:data:image/png;base64,${base64Image}`;
+          //
+          //         // // Clean up the image file
+          //         // fs.unlinkSync(outputImageFile);
+          //       } catch (imageError) {
+          //         console.error(`[MCP] Failed to process output image: ${imageError.message}`);
+          //       }
+          //     }
+          //
+          //     // Return the result of the retry
+          //     if (retryStderr) {
+          //       return `${retryStderr}`;
+          //     }
+          //
+          //     return result || 'Code executed successfully with no output';
+          //   } catch (retryError) {
+          //     // If retry fails, continue with normal error handling
+          //     console.error('[MCP] Retry after module installation failed:', retryError);
+          //     stdout = retryError.stdout || stdout;
+          //     stderr = retryError.stderr || stderr;
+          //     error = retryError;
+          //   }
+          // }
         } catch (installError) {
-          console.error(`[MCP] Failed to install module ${missingModule}:`, installError);
+          console.error(`[MCP] Failed to install module(s) ${missingModules.join(', ')}:`, installError);
         }
       }
 
       // Clean up the temporary files in case of error
       try {
-        if (fs.existsSync(tempPythonFile)) {
-          fs.unlinkSync(tempPythonFile);
-        }
-        if (fs.existsSync(outputImageFile)) {
-          fs.unlinkSync(outputImageFile);
-        }
+        // if (fs.existsSync(tempPythonFile)) {
+        //   fs.unlinkSync(tempPythonFile);
+        // }
+        // if (fs.existsSync(outputImageFile)) {
+        //   fs.unlinkSync(outputImageFile);
+        // }
       } catch (cleanupError) {
         console.error(`[MCP] Failed to clean up temporary files: ${cleanupError.message}`);
       }

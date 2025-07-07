@@ -1,5 +1,8 @@
 import { clipboard, contextBridge, nativeImage, webUtils, webFrame, ipcRenderer } from 'electron'
 import { exposeElectronAPI } from '@electron-toolkit/preload'
+import QuickChart from 'quickchart-js';
+import csv from 'csv-parser';
+
 
 // Custom APIs for renderer
 const api = {

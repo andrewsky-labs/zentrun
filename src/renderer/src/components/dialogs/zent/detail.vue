@@ -6,7 +6,7 @@
 <!--        <DialogDescription>{{ t('dialog.zent.edit.description') }}</DialogDescription>-->
 <!--      </DialogHeader>-->
 
-      <div class="flex-1 overflow-y-auto p-4 text-black">
+      <div class="flex-1 overflow-y-auto p-4 ">
         <form class="flex flex-col gap-4">
           <Label class="flex flex-col gap-1">
             <span class="font-semibold">{{ t('dialog.zent.edit.name') }} <span class="text-red-500">*</span></span>
@@ -19,7 +19,7 @@
             <div v-else class="w-full border rounded p-2 mt-1 bg-gray-50 whitespace-pre-wrap" style="min-height: 80px">{{ prompt }}</div>
           </Label>
           <Label class="flex flex-col gap-1">
-            <span class="font-semibold">{{ t('dialog.zent.edit.description') }} <span class="text-black">{{ t('Optional') }}</span></span>
+            <span class="font-semibold">{{ t('dialog.zent.edit.description') }} <span class="">{{ t('Optional') }}</span></span>
             <Textarea v-if="!props.isViewMode && !isMarketplaceMode" v-model="description" rows="3" class="w-full" placeholder="Enter a description for this Zent" />
             <div v-else class="w-full border rounded p-2 mt-1 bg-gray-50 whitespace-pre-wrap" style="min-height: 80px">{{ props.zent?.data?.description || '' }}</div>
           </Label>
@@ -46,7 +46,7 @@
           <!-- Connected MCPs -->
           <div class="mb-4">
             <h3 class="text-sm font-medium mb-4">{{ t('connected-mcps') }}</h3>
-            <p class="text-xs text-gray-600 mb-4">
+            <p class="text-xs  mb-4">
               {{ t('allow-mcps-to-trigger-zents-for-your-agent-for-example-connect-gmail-to-trigger-your-agent-via-mcp-0') }}
             </p>
 
@@ -97,7 +97,7 @@
               </div>
 
               <!-- Bio -->
-                <p v-if="zent?.data?.userInfo?.bio" class="text-xs text-gray-600 mb-5 mt-5">
+                <p v-if="zent?.data?.userInfo?.bio" class="text-xs  mb-5 mt-5">
                 {{ zent.data.userInfo.bio }}
               </p>
 
@@ -201,7 +201,7 @@
             </ul>
           </div>
           <Label class="flex flex-col gap-1">
-            <span class="font-semibold">{{ t('dialog.zent.edit.categories') }} <span v-if="!isPublic" class="text-black">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
+            <span class="font-semibold">{{ t('dialog.zent.edit.categories') }} <span v-if="!isPublic" class="">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
             <div v-if="!props.isViewMode && !isMarketplaceMode" class="relative category-dropdown-container">
               <div
                 class="flex flex-wrap gap-2 p-2 border rounded min-h-[38px] cursor-text"
@@ -240,7 +240,7 @@
             </div>
           </Label>
           <Label class="flex flex-col gap-1">
-            <span class="font-semibold">{{ t('dialog.zent.edit.tags') }} <span v-if="!isPublic" class="text-black">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
+            <span class="font-semibold">{{ t('dialog.zent.edit.tags') }} <span v-if="!isPublic" class="">{{ t('Optional') }}</span><span v-else class="text-red-500">*</span></span>
             <div v-if="!props.isViewMode && !isMarketplaceMode" class="flex flex-wrap gap-2 p-2 border rounded">
               <div v-for="tag in tagList" :key="tag" class="flex items-center bg-gray-100 rounded px-2 py-1 text-xs">
                 <span>{{ tag }}</span>

@@ -56,7 +56,7 @@
       <!-- 搜索助手模型选择 -->
       <div class="flex flex-row p-2 items-center gap-2 px-2">
         <span class="flex flex-row items-center gap-2 flex-grow w-full">
-          <Icon icon="lucide:bot" class="w-4 h-4 text-muted-foreground" />
+          <Icon icon="lucide:app-window" class="w-4 h-4 text-muted-foreground" />
           <span class="text-sm font-medium">{{ t('settings.common.searchAssistantModel') }}</span>
         </span>
         <div class="flex-shrink-0 min-w-64 max-w-96">
@@ -151,23 +151,29 @@
       <div class="flex flex-row p-2 items-center gap-2 px-2">
         <span class="flex flex-row items-center gap-2 flex-grow w-full">
           <Icon icon="lucide:terminal" class="w-4 h-4 text-muted-foreground" />
-          <span class="text-sm font-medium">Python Interpreter Path</span>
+          <span class="text-sm font-medium">{{ t('settings.common.pythonInterpreterPath') }}</span>
         </span>
         <div class="flex-shrink-0 flex gap-2">
           <div class="min-w-64 max-w-96">
             <Input
               v-model="pythonInterpreterPath"
-              placeholder="Path to Python interpreter (e.g., /usr/bin/python3)"
-              @change="savePythonInterpreterPath"
+              :placeholder="t('settings.common.pythonInterpreterPathPlaceholder')"
             />
           </div>
           <Button
             variant="outline"
             size="icon"
             @click="browsePythonInterpreter"
-            title="Browse for Python interpreter"
+            :title="t('settings.common.browsePythonInterpreter')"
           >
             <Icon icon="lucide:folder-open" class="w-4 h-4" />
+          </Button>
+          <Button
+            variant="outline"
+            @click="savePythonInterpreterPath"
+            :title="t('settings.common.pythonPathSaved')"
+          >
+            {{ t('save') }}
           </Button>
         </div>
       </div>
@@ -361,11 +367,13 @@ import type { RENDERER_MODEL_META } from '@shared/presenter'
 import type { SearchEngineTemplate } from '@shared/chat'
 import { Switch } from '@/components/ui/switch'
 import { nanoid } from 'nanoid'
+import { useToast } from '@/components/ui/toast/use-toast'
 
 const devicePresenter = usePresenter('devicePresenter')
 const configPresenter = usePresenter('configPresenter')
 const settingsStore = useSettingsStore()
 const { t } = useI18n()
+const { toast } = useToast()
 
 const selectedSearchEngine = ref(settingsStore.activeSearchEngine?.id ?? 'google')
 const selectedSearchModel = computed(() => settingsStore.searchAssistantModel)
@@ -682,8 +690,21 @@ const savePythonInterpreterPath = async () => {
   try {
     await configPresenter.setSetting('pythonInterpreterPath', pythonInterpreterPath.value)
     console.log('Python interpreter path saved:', pythonInterpreterPath.value)
+    // Show success notification
+    toast({
+      title: t('settings.common.pythonPathSaved'),
+      description: pythonInterpreterPath.value,
+      duration: 3000
+    })
   } catch (error) {
     console.error('Failed to save Python interpreter path:', error)
+    // Show error notification
+    toast({
+      title: t('settings.common.pythonPathError'),
+      description: String(error),
+      variant: 'destructive',
+      duration: 3000
+    })
   }
 }
 

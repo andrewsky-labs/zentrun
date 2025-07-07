@@ -588,9 +588,92 @@ System capabilities:
 - Utilize various tools to complete user-assigned tasks step by step
 - For Python code, please be careful with the placement of spaces or tabs, as incorrect indentation will immediately cause errors.
 - When generating and returning code, always indicate which programming language or framework it was written in.
+- When using matplotlib for data visualization in Python, instead of using plt.show(), save the image with plt.savefig(f"{os.path.expanduser('~')}/.config/Zentrun/{conversation_id}_{num}.png") to the console. Don't forget to "import os". Conversation ID is written below so define conversation_id = "" <- put conversation_id in here first.
+- When using plotly for data visualization in Python (for map based data visualization or others), save the image with fig.write_image(f"{os.path.expanduser('~')}/.config/Zentrun/{conversation_id}_{num}.png") to the console. Don't forget to "import os". Conversation ID is written below so define conversation_id = "" <- put conversation_id in here first.
+- If user wants to visulize data in python, please use matplotlib.
+- If user wants to visulize data in nodejs, please use quickchart-js.
+- If user wants to visulize data and the user has python interpreter, please use python. Otherwise, please use nodejs.
+- If you answer with multiple codes, integrate in one code block.
+- If you're unsure about the column format, check 5 to 10 rows first and generate the code based on that. For columns containing numbers or dates, try to infer the format even if it's not explicitly stated.
+- When answering follow-up questions with code, please assume that previous code blocks are not connected. Each code snippet must be self-contained, including all necessary imports and variable definitions.
+- I mean code block is like below.
+
 Example:
 \`\`\`python
 \`\`\`
+
+- I mean use quickchart-js for data visualization like this below.
+
+\`\`\`javascript
+
+let conversation_id = "" // put conversation_id. Conversation ID is written below.
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const csv = require('csv-parser');
+const QuickChart = require('quickchart-js');
+
+const filePath = "/home/dslabglobal/Downloads/marketing_campaign_dataset.csv";
+
+(async () => {
+  const conversionSums = {};
+  const counts = {};
+
+  // 1. CSV 읽고 집계
+  await new Promise((resolve, reject) => {
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on('data', (row) => {
+        const type = row["Campaign_Type"];
+        const rate = parseFloat(row["Conversion_Rate"]);
+        if (!isNaN(rate)) {
+          conversionSums[type] = (conversionSums[type] || 0) + rate;
+          counts[type] = (counts[type] || 0) + 1;
+        }
+      })
+      .on('end', resolve)
+      .on('error', reject);
+  });
+
+  const data = Object.entries(conversionSums)
+    .map(([type, sum]) => ({ type, avg: sum / counts[type] }))
+    .sort((a, b) => b.avg - a.avg);
+
+  const labels = data.map(d => d.type);
+  const values = data.map(d => parseFloat(d.avg.toFixed(2)));
+
+  // 2. QuickChart로 차트 생성
+  const chart = new QuickChart();
+  chart.setConfig({
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Avg Conversion Rate',
+        data: values,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+      }],
+    },
+    options: {
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: 'Average Conversion Rate by Campaign Type' },
+      },
+      scales: {
+        x: { ticks: { maxRotation: 45, minRotation: 45 } },
+        y: { beginAtZero: true },
+      },
+    },
+  });
+  chart.setWidth(800).setHeight(500).setBackgroundColor('white');
+
+  // 3. 저장
+  await chart.toFile(path.join(os.homedir(), \`.config/Zentrun/\${conversation_id}_\${num}.png\`));
+  console.log(outputPath);
+})();
+
+\`\`\`
+
 
 Please generate Python code that uses the following environment variables to call an LLM:
 
@@ -735,11 +818,26 @@ const queryDatabase = async () => {
 5. Submit Results: Send results to user via message tools, providing deliverables and related files as message attachments
 6. Enter Standby: Enter idle state when all tasks are completed or user explicitly requests to stop, and wait for new tasks
 `
+    // First create the conversation with the initial system prompt
     mergedSettings.systemPrompt = globalSystemPrompt + mergedSettings.systemPrompt
 
-    console.log("mergedSettings.systemPrompt");
+    console.log("Initial mergedSettings.systemPrompt");
     console.log(mergedSettings.systemPrompt);
     const conversationId = await this.sqlitePresenter.createConversation(title, mergedSettings)
+
+    // Then update the system prompt to include the conversationId
+    const updatedSystemPrompt = mergedSettings.systemPrompt + `\nConversation ID: ${conversationId}`
+    console.log("Updated systemPrompt with conversationId");
+    console.log(updatedSystemPrompt);
+
+    // Finally update the conversation in the database with the new system prompt
+    await this.sqlitePresenter.updateConversation(conversationId, {
+      settings: {
+        ...mergedSettings,
+        systemPrompt: updatedSystemPrompt
+      }
+    })
+
     await this.setActiveConversation(conversationId)
     return conversationId
   }
