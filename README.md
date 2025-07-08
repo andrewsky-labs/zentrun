@@ -8,6 +8,42 @@ No setup wizards. No workflow builders. No API configurations.
 
 ---
 
+## 🎯 What You Can Build
+
+### **Business Intelligence**
+```
+"Collect daily sales data, compare to targets, identify trends, send executive summary"
+→ Complete BI pipeline with data collection, analysis, and reporting
+```
+
+### **Data Analysis & ML**
+```
+"Analyze customer churn patterns and build prediction models"
+→ Data exploration + ML training + predictive insights
+```
+
+### **Competitive Monitoring**
+```
+"Track competitor websites for pricing changes, analyze impact, suggest responses"
+→ Web monitoring + analysis + strategic recommendations
+```
+
+### **Customer Intelligence**
+```
+"Monitor support tickets, classify by urgency and topic, predict escalation needs"
+→ Ticket analysis + ML classification + predictive insights
+```
+
+### **Content Operations**
+```
+"Find trending topics, generate content ideas, schedule posts, track performance"
+→ Research + content creation + scheduling + analytics
+```
+
+Everything that you want can be automated.
+
+---
+
 ## 🎬 See It Working
 
 **Real demo: Complete marketing automation from prompts**
@@ -73,33 +109,6 @@ yarn && yarn dev
 
 **The difference**: Others help you build automation. Zentrun just automates.
 
----
-
-## 🎯 What You Can Build
-
-### **Business Intelligence**
-```
-"Collect daily sales data, compare to targets, identify trends, send executive summary"
-→ Complete BI pipeline with data collection, analysis, and reporting
-```
-
-### **Competitive Monitoring**
-```
-"Track competitor websites for pricing changes, analyze impact, suggest responses"
-→ Web monitoring + analysis + strategic recommendations
-```
-
-### **Customer Intelligence**
-```
-"Monitor support tickets, classify by urgency and topic, predict escalation needs"
-→ Ticket analysis + ML classification + predictive insights
-```
-
-### **Content Operations**
-```
-"Find trending topics, generate content ideas, schedule posts, track performance"
-→ Research + content creation + scheduling + analytics
-```
 
 ---
 
