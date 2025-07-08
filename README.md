@@ -1,160 +1,187 @@
-# 🛰️ Zentrun — The Open Source Palantir Alternative
+# Zentrun — One Prompt, Complete Automation
 
-Zentrun is an open source platform for **AI-powered decision automation** — a transparent, prompt-driven alternative to Palantir Foundry and AIP.
+**"Send yesterday's sales to Slack every morning at 9 AM"**
+This single sentence becomes working automation.
 
-It allows you to:
-- **Ingest, analyze, and visualize data** with natural language
-- **Define actions and automate decisions** based on structured prompts
-- **Build modular, ontology-aware AI Apps** that operate like Palantir AIP Apps
-
-## ✨ Demo: Prompt → Function (Zent) → App
-
-🎬 In the demo below, a marketing Agent App is created with prompts:
-
-1. Collects AI news
-2. Summarizes content
-3. Posts automatically to Twitter
-4. Analyzes engagement
-5. Visualizes results
-
-Each step is generated from language.
-Each function is saved and reusable.
-
-[![Demo Video](assets/demo.jpg)](https://youtu.be/HcqcrWb2jxA)
+No setup wizards. No workflow builders. No API configurations.
+**Just describe what you want.**
 
 ---
 
-## ✨ Installation
+## 🎬 See It Working
 
-| Platform         | Stable                                                                                                  |
+**Real demo: Complete marketing automation from prompts**
+
+[![Demo Video](assets/demo.jpg)](https://youtu.be/HcqcrWb2jxA)
+
+Watch a marketing workflow get built with just natural language:
+1. Collects AI news from multiple sources
+2. Summarizes content with AI analysis
+3. Posts automatically to Twitter
+4. Analyzes engagement patterns
+5. Visualizes results in dashboard
+
+**Each step generated from language. No manual configuration.**
+
+---
+
+## 🚀 Installation
+
+| Platform         | Download                                                                                                  |
 |------------------|---------------------------------------------------------------------------------------------------------|
 | Windows          | [Download](https://download.zentrun.com/Zentrun%20Setup%200.0.1.exe)                                    |
 | macOS            | [Download](https://download.zentrun.com/Zentrun-0.0.1-mac-x64.dmg)                     |
-| Linux (tar.gz)   | [Download](https://download.zentrun.com/Zentrun-0.0.1-linux-x64.tar.gz)           |
-| Linux (AppImage) | [Download](https://download.zentrun.com/Zentrun-0.0.1-linux-x86_64.AppImage) |
-
-Download from zentrun.com or GitHub Releases.
-
-##  ✨  Quick Start
+| Linux            | [Download](https://download.zentrun.com/Zentrun-0.0.1-linux-x64.tar.gz)           |
 
 ```bash
-
+# Or build from source
 git clone https://github.com/andrewsky-labs/zentrun
 cd zentrun
-yarn
-yarn run dev
-
+yarn && yarn dev
 ```
 
 ---
 
-## 🧠 Prompt-to-Execution: From Questions to Actions
+## 💭 Why Automation Still Feels Like Work
 
-In Zentrun, prompts define **runnable logic** — not just passive insights.
-Each prompt creates a **Zent**: a structured function that can be reused, scheduled, and executed.
+### **The "AI-Assisted" Reality**
 
-Zents form the building blocks of **AI Apps**, which:
-- Maintain local or RAG-based knowledge
-- Understand context through a structured ontology
-- Visualize insights and **act** on decisions
+**Zapier with AI**
+- ❌ "AI helps you build workflows" → Still need to configure triggers, actions, connections
+- ❌ "Natural language setup" → AI generates workflow, you still need to understand their interface
 
-From prompt → to code → to logic → to action.
+**Make.com with AI Agents**
+- ❌ "AI Agents automate tasks" → Agents work within workflows you build with drag-and-drop
+- ❌ "Conversational automation" → Conversation helps configure, doesn't replace configuration
 
----
+**Power Automate with Copilot**
+- ❌ "Describe your workflow" → Generates Power Platform flows, still need to set up connections
+- ❌ "Natural language flows" → You still debug in their visual interface
 
-## 🧭 Ontology + Logic = Strategic Execution
+### **Zentrun's Approach**
 
-Zentrun includes a lightweight yet powerful **ontology system**, allowing you to:
-- Define key entities (e.g., Candidate, Channel, Campaign)
-- Capture their relationships and historical changes
-- Build decisions mapped to structured, real-world context
+```
+💬 "Monitor competitor prices and alert me when they change significantly"
+→ Running automation. No setup. No configuration. No workflow building.
 
-This lets your AI Apps behave less like scripts — and more like strategic systems.
+💬 "Analyze customer feedback, identify trends, create weekly summary"
+→ Complete pipeline from data collection to analysis to reporting.
 
----
+💬 "Track our mentions on social media, classify sentiment, escalate negatives"
+→ Full monitoring and response system with ML classification.
+```
 
-## ⚙️ How It Works
-
-**1. Prompt a function**
-→ Zentrun generates Python, SQL, or shell-based logic
-
-**2. Save as Zent**
-→ Zent = Executable & schedulable logic block
-
-**3. Combine into AI App**
-→ Modular app = Zents + Ontology + Data
-
-**4. Analyze, decide, act**
-→ End-to-end automation of decision flows
+**The difference**: Others help you build automation. Zentrun just automates.
 
 ---
 
-## 📦 Example AI Apps
+## 🎯 What You Can Build
 
-- 🧑‍💼 **Recruiting App**: Detect GPT-written resumes → Score applicants → Recommend interviews
-- 📈 **Marketing App**: Track trends → Classify performance → Post & analyze content
-- 🧠 **Strategy App**: Simulate scenarios → Compare outcomes → Recommend actions
-- 🔍 **Competitive Monitor**: Track rivals → Extract signals → Suggest response
-- 💬 **Sales App**: Cluster leads → Predict success → Alert team
+### **Business Intelligence**
+```
+"Collect daily sales data, compare to targets, identify trends, send executive summary"
+→ Complete BI pipeline with data collection, analysis, and reporting
+```
 
----
+### **Competitive Monitoring**
+```
+"Track competitor websites for pricing changes, analyze impact, suggest responses"
+→ Web monitoring + analysis + strategic recommendations
+```
 
-## 🔑 Key Features
+### **Customer Intelligence**
+```
+"Monitor support tickets, classify by urgency and topic, predict escalation needs"
+→ Ticket analysis + ML classification + predictive insights
+```
 
-- ✅ Prompt-to-code (Python, SQL, Shell, Browser)
-- ✅ Zent = Reusable execution logic
-- ✅ Built-in visualizations (chart, table, map)
-- ✅ Structured ontology & local state memory
-- ✅ RAG integration with document context
-- ✅ Runs offline or integrated into pipelines
-
----
-
-## 🆚 Zentrun vs. Palantir
-
-| Palantir Foundry / AIP | Zentrun (Open Source)             |
-|------------------------|-----------------------------------|
-| Closed-source          | ✅ Transparent & auditable         |
-| Enterprise-only        | ✅ Free & self-hosted & Enterprise |
-| Partly customizable    | ✅ Fully customizable              |
-| Complex setup          | ✅ Prompt-first simplicity         |
-| Cloud-only             | ✅ Works locally or hybrid         |
+### **Content Operations**
+```
+"Find trending topics, generate content ideas, schedule posts, track performance"
+→ Research + content creation + scheduling + analytics
+```
 
 ---
 
-## 💼 From Automation to Monetization
+## 🔧 How This Is Possible
 
-- Package AI Apps for clients or internal ops
-- Sell repeatable workflows with real execution logic
-- Use Zents as plug-in logic across teams
+### **Browser-Native Execution**
+- Uses your existing browser sessions (no API keys needed)
+- Inherits all your login credentials automatically
+- Handles complex web interactions like a human
+- Bypasses API limitations and rate limits
 
-Zentrun lets you **turn prompts into product-grade software**.
+### **AI-Powered Code Generation**
+- Converts natural language to executable Python/SQL/JavaScript
+- Generates browser automation scripts
+- Creates data analysis workflows
+- Builds ML training and inference pipelines
+
+### **Local Processing Power**
+- Fast local database (SQLite/DuckDB) for data operations
+- Built-in ML libraries for custom model training
+- Real-time analysis without cloud dependencies
+- Complete workflow execution on your machine
+
+### **Intelligent Adaptation**
+- Self-healing when websites change
+- Learning from successful automation patterns
+- Context-aware decision making
+- Automatic error recovery and retry logic
+
+---
+---
+
+## 🛠️ Technical Architecture
+
+### **Natural Language Processing**
+- Advanced prompt parsing and intent recognition
+- Context-aware code generation for automation logic
+- Multi-step workflow planning from single descriptions
+- Error recovery and script refinement
+
+### **Browser Integration**
+- Chrome DevTools Protocol for seamless browser control
+- Session inheritance for instant access to logged-in services
+- JavaScript execution environment for dynamic interactions
+- Anti-detection techniques for reliable web automation
+
+### **Data & ML Pipeline**
+- SQLite/DuckDB for high-performance local analytics
+- Vector databases for embedding storage and retrieval
+- scikit-learn, TensorFlow, PyTorch for ML workflows
+- Real-time inference and model serving capabilities
+
+### **Execution Engine**
+- Parallel processing for complex multi-step automations
+- Intelligent scheduling and resource management
+- Fault tolerance with automatic retry mechanisms
+- Version control and rollback for automation logic
 
 ---
 
-Zentrun isn’t just an automation tool.
-It’s your open source **decision automation platform**.
-Welcome to Software 3.0.
+## 📋 Getting Started
 
+### **Start Simple**
+```
+1. Install Zentrun
+2. Try: "Summarize my unread emails from today"
+3. Watch it work in your browser
+4. Add more complex automations gradually
+```
 
-### Screenshots
+### **Common Use Cases**
+- Daily email and calendar summaries
+- Social media monitoring and analysis
+- Competitive intelligence gathering
+- Customer feedback analysis
+- Financial reporting automation
 
-
-
-<div align="center">
-  <img src="/assets/zentrun_main.jpg" alt="Zentrun" width="90%">
-</div>
-
-<div align="center">
-  <img src="/assets/zent_build.png" alt="Zentrun" width="90%">
-</div>
-<div align="center">
-  <img src="/assets/agent_build.png" alt="Zentrun" width="90%">
-</div>
-<div align="center">
-  <img src="/assets/zpilot_build.png" alt="Zentrun" width="90%">
-</div>
-
+### **Advanced Workflows**
+- Multi-source data integration pipelines
+- Custom ML model training on your data
+- Complex decision-making automations
+- Real-time monitoring and alerting systems
 
 ## 🤖 Supported Model Providers
 
@@ -251,3 +278,10 @@ Please refer to [Contribution Guide](https://github.com/andrewsky-labs/zentrun/C
 ## 📃 License
 
 [LICENSE](./LICENSE)
+
+---
+
+**Stop building workflows. Start describing what you want.**
+**Automation that actually understands natural language.**
+
+⭐ **Star if you want automation to work like you always thought it should!**
