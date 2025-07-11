@@ -85,6 +85,7 @@ export class WindowPresenter implements IWindowPresenter {
       webPreferences: {
         preload: join(__dirname, '../preload/index.mjs'),
         sandbox: false,
+        webviewTag: true,
         devTools: is.dev
       },
       frame: false

@@ -201,6 +201,17 @@ settingRoutes.push(
 )
 routes.push(
   {
+    path: '/record',
+    name: 'record',
+    component: () => import(`@shared/${zentrunCorePath}/views/RecordTabView.vue`),
+    meta: {
+      titleKey: 'routes.record',
+      icon: 'lucide:video'
+    }
+  },
+)
+routes.push(
+  {
     path: '/llm-usage',
     name: 'llm-usage',
     component: () => import(`@shared/${zentrunCorePath}/views/ZentrunLLMUsage.vue`),

@@ -21,6 +21,20 @@
         variant="ghost"
         size="icon"
         class="rounded-lg w-9 h-9"
+        :class="{ 'bg-accent': modelValue === 'record' }"
+        @click="$emit('update:modelValue', 'record')"
+      >
+        <Icon
+          icon="lucide:video"
+          :class="['h-5 w-5', modelValue === 'record' ? ' text-primary' : 'text-muted-foreground']"
+        />
+        <span class="sr-only">{{ $t('record') }}</span>
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        class="rounded-lg w-9 h-9"
         :class="{ 'bg-accent': modelValue === 'market' }"
         @click="$emit('update:modelValue', 'market')"
       >
