@@ -51,6 +51,7 @@
     "better-sqlite3-multiple-ciphers": "11.9.1",
     "chart.js": "^4.4.9",
     "cheerio": "^1.0.0",
+    "chrome-remote-interface": "^0.33.3",
     "compare-versions": "^6.1.1",
     "csv-parse": "^5.6.0",
     "csv-parser": "^3.2.0",

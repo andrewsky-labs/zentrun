@@ -344,6 +344,15 @@
 
     </ScrollArea>
 
+      <Button
+        size="sm"
+        class="w-full text-xs
+        justify-start gap-2 mt-2 pt-5 pb-5"
+        @click="handleRecordingClick"
+      >
+      <Icon :icon="isRecording ? 'lucide:square' : 'lucide:video'" class="h-4 w-4" />
+        <span>{{ isRecording ? t('common.stopRecording', "Stop Recording") : t('common.newRecording', "New Record") }}</span>
+      </Button>
     <!-- Zent Move Dialog -->
     <ZentMoveDialog
       v-model:open="moveDialogZent"
@@ -405,6 +414,31 @@
       :team="selectedTeam"
       @cancel="handleDeleteDialogCancelTeam"
     />
+
+    <!-- Recording Complete Dialog -->
+    <Dialog v-model:open="recordingCompleteDialog">
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{{ t('common.recordingComplete', 'Recording Complete') }}</DialogTitle>
+          <DialogDescription>
+            {{ t('common.recordingCompleteDesc', 'Browser recording has been completed. What would you like to do?') }}
+          </DialogDescription>
+        </DialogHeader>
+        <div class="mt-4">
+          <p class="text-sm text-muted-foreground mb-2">
+            {{ t('common.actionsRecorded', 'Actions recorded') }}: {{ recordedActions.length }}
+          </p>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" @click="cancelRecording">
+            {{ t('dialog.cancel', 'Cancel') }}
+          </Button>
+          <Button variant="default" @click="createAutomation">
+            {{ t('common.createAutomation', 'Create Automation') }}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
 
     <!-- Agent Dialogs -->
     <AgentRenameDialog
@@ -1062,6 +1096,19 @@ onMounted(async () => {
   }, { deep: true })
 })
 
+// Clean up when component is unmounted
+onBeforeUnmount(() => {
+  // Clean up recording resources if still recording
+  if (isRecording.value) {
+    stopRecording().catch(error => {
+      console.error('Error stopping recording during unmount:', error)
+    })
+  }
+
+  // Remove any event listeners
+  window.electron.ipcRenderer.removeAllListeners('action-captured')
+})
+
 const activeThreadId = ref('')
 
 // 팀스페이스 생성 다이얼로그 상태 및 입력값
@@ -1181,6 +1228,169 @@ const selectedOrganization = ref<any>(null)
 const selectedTeam = ref<any>(null)
 const selectedAgent = ref<any>(null)
 const selectedZent = ref<any>(null)
+
+// Recording functionality
+const isRecording = ref(false)
+const recordedActions = ref<any[]>([])
+const recordingCompleteDialog = ref(false)
+let cdpConnection: any = null
+
+// Handle recording button click
+const handleRecordingClick = async () => {
+  if (isRecording.value) {
+    // Stop recording
+    await stopRecording()
+  } else {
+    // Start recording
+    await startRecording()
+  }
+}
+
+// Start browser recording
+const startRecording = async () => {
+  try {
+    // Start Chrome with CDP enabled on port 9222
+    await window.electron.ipcRenderer.invoke('start-chrome-with-cdp')
+
+    // Connect to Chrome CDP
+    cdpConnection = await connectToCDP()
+
+    // Start capturing actions
+    await startCapturingActions()
+
+    // Update recording state
+    isRecording.value = true
+    recordedActions.value = []
+
+    toast({
+      title: t('common.recordingStarted', 'Recording Started'),
+      description: t('common.recordingStartedDesc', 'Browser actions are now being recorded'),
+    })
+  } catch (error) {
+    console.error('Failed to start recording:', error)
+    toast({
+      title: t('common.error.recordingFailed', 'Recording Failed'),
+      description: String(error),
+      variant: 'destructive'
+    })
+  }
+}
+
+// Stop browser recording
+const stopRecording = async () => {
+  try {
+    // Stop capturing actions
+    if (cdpConnection) {
+      await stopCapturingActions()
+      cdpConnection = null
+    }
+    console.log('Recorded actions:', recordedActions.value)
+
+    // Update recording state
+    isRecording.value = false
+
+    // Show recording complete dialog if we have actions
+    if (recordedActions.value.length > 0) {
+      recordingCompleteDialog.value = true
+    } else {
+      toast({
+        title: t('common.recordingStopped', 'Recording Stopped'),
+        description: t('common.noActionsRecorded', 'No actions were recorded'),
+      })
+    }
+  } catch (error) {
+    console.error('Failed to stop recording:', error)
+    isRecording.value = false
+    toast({
+      title: t('common.error.recordingStopFailed', 'Failed to Stop Recording'),
+      description: String(error),
+      variant: 'destructive'
+    })
+  }
+}
+
+// Connect to Chrome DevTools Protocol
+const connectToCDP = async () => {
+  try {
+    // Connect to Chrome CDP on port 9222
+    return await window.electron.ipcRenderer.invoke('connect-to-cdp')
+  } catch (error) {
+    console.error('Failed to connect to CDP:', error)
+    throw new Error('Failed to connect to Chrome DevTools Protocol')
+  }
+}
+
+// Start capturing user actions
+const startCapturingActions = async () => {
+  try {
+    // Set up event listeners for user actions via CDP
+    await window.electron.ipcRenderer.invoke('start-capturing-actions')
+
+    // Set up event listener for captured actions
+    window.electron.ipcRenderer.on('action-captured', (event, action) => {
+      recordedActions.value.push(action)
+    })
+  } catch (error) {
+    console.error('Failed to start capturing actions:', error)
+    throw new Error('Failed to start capturing browser actions')
+  }
+}
+
+// Stop capturing user actions
+const stopCapturingActions = async () => {
+  try {
+    // Remove event listeners
+    window.electron.ipcRenderer.removeAllListeners('action-captured')
+
+    // Stop capturing actions via CDP
+    await window.electron.ipcRenderer.invoke('stop-capturing-actions')
+  } catch (error) {
+    console.error('Failed to stop capturing actions:', error)
+    throw new Error('Failed to stop capturing browser actions')
+  }
+}
+
+// Create automation from recorded actions
+const createAutomation = async () => {
+  try {
+    // Close the dialog
+    recordingCompleteDialog.value = false
+
+    // Show loading toast
+    toast({
+      title: t('common.generatingAutomation', 'Generating Automation'),
+      description: t('common.generatingAutomationDesc', 'Creating automation code from recorded actions...'),
+    })
+
+    // Send recorded actions to LLM to generate automation code
+    const automationCode = await window.electron.ipcRenderer.invoke('generate-automation-code', recordedActions.value)
+
+    // Create a new thread with the automation code
+    await chatStore.createNewThread({
+      title: t('common.browserAutomation', 'Browser Automation'),
+      content: `# Browser Automation\n\n\`\`\`python\n${automationCode}\n\`\`\``,
+    })
+
+    // Success toast
+    toast({
+      title: t('common.automationCreated', 'Automation Created'),
+      description: t('common.automationCreatedDesc', 'Automation code has been generated successfully'),
+    })
+  } catch (error) {
+    console.error('Failed to create automation:', error)
+    toast({
+      title: t('common.error.automationFailed', 'Automation Creation Failed'),
+      description: String(error),
+      variant: 'destructive'
+    })
+  }
+}
+
+// Cancel recording
+const cancelRecording = () => {
+  recordingCompleteDialog.value = false
+  recordedActions.value = []
+}
 
 // 创建新会话
 const createNewThread = async () => {

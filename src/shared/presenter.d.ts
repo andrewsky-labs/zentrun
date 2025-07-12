@@ -1159,3 +1159,8 @@ export interface IShortcutPresenter {
   // Basic methods for Shortcut operations
   destroy(): void
 }
+
+export interface IBrowserAutomationPresenter {
+  // Methods for browser automation operations
+  dispose(): void
+}

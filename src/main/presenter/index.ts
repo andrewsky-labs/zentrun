@@ -22,6 +22,7 @@ import { SyncPresenter } from './syncPresenter'
 import { DeeplinkPresenter } from './deeplinkPresenter'
 import { NotificationPresenter } from './notifactionPresenter'
 import { RagPresenter } from './ragPresenter'
+import { BrowserAutomationPresenter } from './browserAutomationPresenter'
 import {
   CONFIG_EVENTS,
   CONVERSATION_EVENTS,
@@ -100,6 +101,7 @@ export class Presenter implements IPresenter {
   automationSQLitePresenter: AutomationSQLitePresenter // <-- 자동화 기능 추가
   ragPresenter: RagPresenter // <-- RAG 기능 추가
   genericSQLitePresenter: GenericSQLitePresenter // <-- 일반 SQLite 쿼리 기능 추가
+  browserAutomationPresenter: BrowserAutomationPresenter // <-- 브라우저 자동화 기능 추가
   // llamaCppPresenter: LlamaCppPresenter
 
   constructor() {
@@ -139,6 +141,7 @@ export class Presenter implements IPresenter {
     this.notificationPresenter = new NotificationPresenter()
     this.ragPresenter = new RagPresenter()
     this.genericSQLitePresenter = new GenericSQLitePresenter()
+    this.browserAutomationPresenter = new BrowserAutomationPresenter()
     // this.llamaCppPresenter = new LlamaCppPresenter()
     this.setupEventBus()
   }
@@ -242,6 +245,7 @@ export class Presenter implements IPresenter {
     this.shortcutPresenter.destroy()
     this.syncPresenter.destroy()
     this.notificationPresenter.clearAllNotifications()
+    this.browserAutomationPresenter.dispose()
   }
 }
 
