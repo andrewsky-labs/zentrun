@@ -350,8 +350,10 @@
         justify-start gap-2 mt-2 pt-5 pb-5"
         @click="handleRecordingClick"
       >
-      <Icon :icon="isRecording ? 'lucide:square' : 'lucide:video'" class="h-4 w-4" />
-        <span>{{ isRecording ? t('common.stopRecording', "Stop Recording") : t('common.newRecording', "New Record") }}</span>
+       <Icon v-if="isLoadingRecording" icon="lucide:loader" class="w-4 h-4 mr-2 animate-spin" />
+      <Icon v-else-if="isRecording" :icon="'lucide:circle'" class="h-4 w-4 animate-pulse text-red-500" />
+      <Icon v-else :icon="isRecording ? 'lucide:square' : 'lucide:video'" class="h-4 w-4" />
+        <span>{{ isLoadingRecording ?  t('common.loading', "Loading...") : isRecording ? t('common.stopRecording', "Stop Recording") : t('common.newRecording', "New Record") }}</span>
       </Button>
     <!-- Zent Move Dialog -->
     <ZentMoveDialog
@@ -1228,6 +1230,7 @@ const selectedOrganization = ref<any>(null)
 const selectedTeam = ref<any>(null)
 const selectedAgent = ref<any>(null)
 const selectedZent = ref<any>(null)
+const isLoadingRecording = ref(false)
 
 // Recording functionality
 const isRecording = ref(false)
@@ -1249,6 +1252,7 @@ const handleRecordingClick = async () => {
 // Start browser recording
 const startRecording = async () => {
   try {
+    isLoadingRecording.value = true
     // Start Chrome with CDP enabled on port 9222
     await window.electron.ipcRenderer.invoke('start-chrome-with-cdp')
 
@@ -1266,6 +1270,7 @@ const startRecording = async () => {
       title: t('common.recordingStarted', 'Recording Started'),
       description: t('common.recordingStartedDesc', 'Browser actions are now being recorded'),
     })
+    isLoadingRecording.value = false
   } catch (error) {
     console.error('Failed to start recording:', error)
     toast({
@@ -1362,14 +1367,48 @@ const createAutomation = async () => {
       description: t('common.generatingAutomationDesc', 'Creating automation code from recorded actions...'),
     })
 
-    // Send recorded actions to LLM to generate automation code
-    const automationCode = await window.electron.ipcRenderer.invoke('generate-automation-code', recordedActions.value)
+    console.log("recordedActions.value");
+    console.log(recordedActions.value);
 
-    // Create a new thread with the automation code
-    await chatStore.createNewThread({
-      title: t('common.browserAutomation', 'Browser Automation'),
-      content: `# Browser Automation\n\n\`\`\`python\n${automationCode}\n\`\`\``,
-    })
+    // Format the recorded actions as JSON
+    const formattedActions = JSON.stringify(recordedActions.value, null, 2);
+
+    // Create a prompt for the automation code
+    const prompt = `
+I need to create a browser automation script based on the following recorded user actions:
+
+\`\`\`json
+${formattedActions}
+\`\`\`
+
+Please generate a Python script using Selenium and Chrome DevTools Protocol (CDP) that reproduces these actions.
+The script should:
+1. Initialize Chrome with CDP enabled on port 9222
+2. Connect to CDP
+3. Navigate to the URLs and perform the recorded actions (clicks, keyboard inputs, etc.)
+4. Use both Selenium for high-level actions and CDP for more complex interactions
+5. Include proper error handling and waiting for elements
+6. Be well-commented and easy to understand
+    `.trim();
+
+    // Create a zentData object
+    const zentData = {
+      name: t('common.browserAutomation', 'Browser Automation'),
+      systemPrompt: 'You are an expert in browser automation. Generate clean, working Python code using Selenium and Chrome DevTools Protocol.',
+      temperature: 0.2,
+      maxTokens: 2000,
+      think: false,
+      search: false
+    };
+
+    // Execute the zent with the prompt
+    const threadId = await chatStore.executeZent(
+      zentData,
+      prompt,
+      [], // No tool calls
+      [], // No locked inputs
+      t
+    );
 
     // Success toast
     toast({
