@@ -301,6 +301,72 @@ export class BrowserAutomationPresenter implements IBrowserAutomationPresenter {
         try {
           // Check if this is a DOM event log from our injected script
           if (event.args && event.args.length > 0) {
+            // Special case for messages that come as separate args
+            if (event.args.length >= 2 && event.args[0].value && event.args[1].value) {
+              // Handle Click target outerHTML
+              if (event.args[0].value === 'Click target outerHTML:') {
+                const outerHTML = event.args[1].value;
+                const specialMessage = `Click target outerHTML: ${outerHTML}`;
+                console.log('Click target outerHTML detected in args:', specialMessage);
+                processConsoleMessage(specialMessage);
+                return; // Skip further processing for this event
+              }
+
+              // Handle target.outerHTML
+              if (event.args[0].value === 'target.outerHTML:') {
+                const outerHTML = event.args[1].value;
+                const specialMessage = `target.outerHTML: ${outerHTML}`;
+                console.log('target.outerHTML detected in args:', specialMessage);
+                processConsoleMessage(specialMessage);
+                return; // Skip further processing for this event
+              }
+
+              // Handle Input value
+              if (event.args[0].value === 'Input value:') {
+                const inputValue = event.args[1].value;
+                const specialMessage = `Input value: ${inputValue}`;
+                console.log('Input value detected in args:', specialMessage);
+                processConsoleMessage(specialMessage);
+                return; // Skip further processing for this event
+              }
+
+              // Handle Input target outerHTML
+              if (event.args[0].value === 'Input target outerHTML:') {
+                const outerHTML = event.args[1].value;
+                const specialMessage = `Input target outerHTML: ${outerHTML}`;
+                console.log('Input target outerHTML detected in args:', specialMessage);
+                processConsoleMessage(specialMessage);
+                return; // Skip further processing for this event
+              }
+
+              // Handle Form submitted
+              if (event.args[0].value === 'Form submitted:') {
+                const formData = event.args[1].value;
+                const specialMessage = `Form submitted: ${formData}`;
+                console.log('Form submission detected in args:', specialMessage);
+                processConsoleMessage(specialMessage);
+                return; // Skip further processing for this event
+              }
+
+              // Handle Form target outerHTML
+              if (event.args[0].value === 'Form target outerHTML:') {
+                const outerHTML = event.args[1].value;
+                const specialMessage = `Form target outerHTML: ${outerHTML}`;
+                console.log('Form target outerHTML detected in args:', specialMessage);
+                processConsoleMessage(specialMessage);
+                return; // Skip further processing for this event
+              }
+
+              // Handle Element selector
+              if (event.args[0].value === 'Element selector:') {
+                const selector = event.args[1].value;
+                const specialMessage = `Element selector: ${selector}`;
+                console.log('Element selector detected in args:', specialMessage);
+                processConsoleMessage(specialMessage);
+                return; // Skip further processing for this event
+              }
+            }
+
             // Try to extract the message from args
             const args = event.args.map(arg => arg.value || '').join(' ');
             console.log('Console message args:', args);
@@ -393,13 +459,32 @@ export class BrowserAutomationPresenter implements IBrowserAutomationPresenter {
       // Process click events from console logs
       const processClickEvent = (text) => {
         try {
+          console.log('Captured click from DOM event at coordinates with text2:', text)
           // Look for coordinates in the message
           const coordsMatch = text.match(/Click coordinates: (\d+) (\d+)/)
           if (coordsMatch && coordsMatch[1] && coordsMatch[2]) {
             const x = parseInt(coordsMatch[1], 10)
             const y = parseInt(coordsMatch[2], 10)
 
-            console.log('Captured click from DOM event at coordinates:', x, y)
+            console.log('Captured click from DOM event at coordinates with text:', x, y, text)
+            console.log('text:', text)
+
+            // Look for element outerHTML
+            let outerHTML = '';
+            // Extract outerHTML from the console message - try multiple patterns
+            // First, try to match the exact "Click target outerHTML:" pattern which is the most reliable
+            const clickTargetMatch = text.match(/Click target outerHTML: ([^\n]+)/);
+            if (clickTargetMatch && clickTargetMatch[1]) {
+              outerHTML = clickTargetMatch[1].trim();
+              console.log('Captured element outerHTML from Click target:', outerHTML);
+            } else {
+              // Fall back to other patterns if the first one doesn't match
+              const outerHTMLMatch = text.match(/target\.outerHTML: ([^\n]+)/);
+              if (outerHTMLMatch && outerHTMLMatch[1]) {
+                outerHTML = outerHTMLMatch[1].trim();
+                console.log('Captured element outerHTML from target.outerHTML:', outerHTML);
+              }
+            }
 
             // Look for element selector
             let selector = '';
@@ -413,7 +498,7 @@ export class BrowserAutomationPresenter implements IBrowserAutomationPresenter {
             // Look for element tag name
             let tagName = 'unknown';
             // Extract tag name from the console message
-            const tagMatch = text.match(/Target element: ([a-z0-9]+)/i) || text.match(/태그명: ([a-z0-9]+)/i);
+            const tagMatch = text.match(/Target element: ([a-z0-9]+)/i) || text.match(/태그명: ([a-z0-9]+)/i) || text.match(/Tag: ([a-z0-9]+)/i);
             if (tagMatch && tagMatch[1]) {
               tagName = tagMatch[1].toLowerCase();
               console.log('Captured element tag name:', tagName);
@@ -429,7 +514,7 @@ export class BrowserAutomationPresenter implements IBrowserAutomationPresenter {
 
             // Look for element name
             let name = '';
-            const nameMatch = text.match(/Name 속성: ([^\n]+)/);
+            const nameMatch = text.match(/Name 속성: ([^\n]+)/) || text.match(/Name: ([^\n]+)/);
             if (nameMatch && nameMatch[1] && nameMatch[1] !== '없음') {
               name = nameMatch[1].trim();
               console.log('Captured element name:', name);
@@ -497,6 +582,7 @@ export class BrowserAutomationPresenter implements IBrowserAutomationPresenter {
               id: id,
               name: name,
               elementHTML: elementHTML, // Include the complete HTML of the element
+              outerHTML: outerHTML, // Include the outerHTML for more accurate selector generation
               targetElement: targetElement, // Include the complete target element
               source: 'dom-event'
             };
@@ -540,6 +626,22 @@ export class BrowserAutomationPresenter implements IBrowserAutomationPresenter {
           }
 
           if (inputText) {
+            // Look for element outerHTML
+            let outerHTML = '';
+            // First, try to match the exact "Input target outerHTML:" pattern which is the most reliable
+            const inputTargetMatch = text.match(/Input target outerHTML: ([^\n]+)/);
+            if (inputTargetMatch && inputTargetMatch[1]) {
+              outerHTML = inputTargetMatch[1].trim();
+              console.log('Captured input element outerHTML from Input target:', outerHTML);
+            } else {
+              // Fall back to other patterns if the first one doesn't match
+              const outerHTMLMatch = text.match(/target\.outerHTML: ([^\n]+)/);
+              if (outerHTMLMatch && outerHTMLMatch[1]) {
+                outerHTML = outerHTMLMatch[1].trim();
+                console.log('Captured input element outerHTML from target.outerHTML:', outerHTML);
+              }
+            }
+
             // Look for input selector
             let selector = '';
             // Extract selector from the console message
@@ -652,6 +754,7 @@ export class BrowserAutomationPresenter implements IBrowserAutomationPresenter {
               inputId: inputId,
               placeholder: placeholder,
               elementHTML: elementHTML, // Include the complete HTML of the element
+              outerHTML: outerHTML, // Include the outerHTML for more accurate selector generation
               targetElement: targetElement, // Include the complete target element
               source: 'dom-event'
             };
@@ -673,6 +776,8 @@ export class BrowserAutomationPresenter implements IBrowserAutomationPresenter {
       // Process form submission events from console logs
       const processFormSubmitEvent = (text) => {
         try {
+          console.log('Processing form submission event:', text);
+
           // Look for form data
           const formDataMatch = text.match(/Form submitted: ([^\n]+)/) || text.match(/Data: ({[^}]+})/);
           if (formDataMatch) {
@@ -685,9 +790,28 @@ export class BrowserAutomationPresenter implements IBrowserAutomationPresenter {
               console.error('Error parsing form data:', e);
             }
 
-            // Look for form selector
+            // Look for element outerHTML - try multiple patterns
+            let outerHTML = '';
+            // First, try to match the exact "Form target outerHTML:" pattern which is the most reliable
+            const formTargetMatch = text.match(/Form target outerHTML: ([^\n]+)/);
+            if (formTargetMatch && formTargetMatch[1]) {
+              outerHTML = formTargetMatch[1].trim();
+              console.log('Captured form element outerHTML from Form target:', outerHTML);
+            } else {
+              // Fall back to other patterns if the first one doesn't match
+              const outerHTMLMatch = text.match(/target\.outerHTML: ([^\n]+)/) ||
+                                    text.match(/Generating selector from form element: ([^\n]+)/);
+              if (outerHTMLMatch && outerHTMLMatch[1]) {
+                outerHTML = outerHTMLMatch[1].trim();
+                console.log('Captured form element outerHTML from alternative pattern:', outerHTML);
+              }
+            }
+
+            // Look for form selector - try multiple patterns
             let selector = '';
-            const selectorMatch = text.match(/Form selector: ([^\n]+)/);
+            const selectorMatch = text.match(/Form selector: ([^\n]+)/) ||
+                                 text.match(/Generated form selector: ([^\n]+)/) ||
+                                 text.match(/form selector validation successful: ([^\n]+)/);
             if (selectorMatch && selectorMatch[1]) {
               selector = selectorMatch[1].trim();
               console.log('Captured form selector:', selector);
@@ -695,18 +819,48 @@ export class BrowserAutomationPresenter implements IBrowserAutomationPresenter {
 
             // Look for form ID
             let formId = '';
-            const idMatch = text.match(/form#([^\s]+)/);
-            if (idMatch && idMatch[1]) {
+            const idMatch = text.match(/form#([^\s]+)/) || text.match(/ID: ([^\n]+)/);
+            if (idMatch && idMatch[1] && idMatch[1] !== '없음') {
               formId = idMatch[1].trim();
               console.log('Captured form ID:', formId);
             }
 
             // Look for form name
             let formName = '';
-            const nameMatch = text.match(/form\[name=([^\]]+)\]/);
-            if (nameMatch && nameMatch[1]) {
+            const nameMatch = text.match(/form\[name=([^\]]+)\]/) || text.match(/Name: ([^\n]+)/);
+            if (nameMatch && nameMatch[1] && nameMatch[1] !== '없음') {
               formName = nameMatch[1].trim();
               console.log('Captured form name:', formName);
+            }
+
+            // Look for form method
+            let formMethod = '';
+            const methodMatch = text.match(/method="([^"]+)"/);
+            if (methodMatch && methodMatch[1]) {
+              formMethod = methodMatch[1].trim();
+              console.log('Captured form method:', formMethod);
+            }
+
+            // Look for form action
+            let formActionUrl = '';
+            const actionMatch = text.match(/action="([^"]+)"/);
+            if (actionMatch && actionMatch[1]) {
+              formActionUrl = actionMatch[1].trim();
+              console.log('Captured form action:', formActionUrl);
+            }
+
+            // Look for element HTML (encoded)
+            let elementHTML = '';
+            const htmlMatch = text.match(/Element HTML \(encoded\): ([A-Za-z0-9+/=]+)/);
+            if (htmlMatch && htmlMatch[1]) {
+              try {
+                // Decode the base64-encoded HTML
+                const encodedHTML = htmlMatch[1].trim();
+                elementHTML = decodeURIComponent(escape(atob(encodedHTML)));
+                console.log('Decoded form element HTML:', elementHTML);
+              } catch (error) {
+                console.error('Error decoding form element HTML:', error);
+              }
             }
 
             // Create a form submission action with all available information
@@ -715,7 +869,11 @@ export class BrowserAutomationPresenter implements IBrowserAutomationPresenter {
               selector: selector,
               formId: formId,
               formName: formName,
+              formMethod: formMethod, // Include the form method (GET, POST, etc.)
+              formAction: formActionUrl, // Include the form action URL
               formData: formData,
+              elementHTML: elementHTML, // Include the complete HTML of the element
+              outerHTML: outerHTML, // Include the outerHTML for more accurate selector generation
               source: 'dom-event'
             };
 
@@ -966,10 +1124,8 @@ Please provide only the Python code without any explanations.
 
           // Add event listeners to capture all user interactions
           const eventTypes = [
-            'mousedown', 'mouseup', 'click', 'dblclick',
-            'keydown', 'keyup', 'keypress',
-            'input', 'change', 'submit',
-            'mousemove', 'scroll', 'beforeunload'
+           'click','keypress',
+            'input', 'change', 'submit'
           ];
 
           // Remove any existing listeners first to avoid duplicates
@@ -983,11 +1139,20 @@ Please provide only the Python code without any explanations.
           // Define a global event handler with a unique name
           window.__zentrunEventHandler = function(event) {
             // Create a standardized format for all events
+            console.log('DOM Event:', event);
+            console.log('DOM Event targeted:', event.target);
+            console.log('DOM Event started:', event.target.outerHTML);
             console.log('DOM Event captured:', event.type);
+
+            // Log the outerHTML as a separate message to ensure it's captured correctly
+            if (event.target && event.target.outerHTML) {
+              console.log('target.outerHTML:', event.target.outerHTML);
+            }
 
             // For click events, store coordinates and target info
             if (event.type === 'click' || event.type === 'mousedown') {
               console.log('Click coordinates:', event.clientX, event.clientY);
+              console.log('Click target outerHTML:', event.target.outerHTML);
 
               // Get detailed information about the target element
               try {
@@ -1036,6 +1201,9 @@ Please provide only the Python code without any explanations.
                 console.log('target:', target);
                 console.log('target.outerHTML:', target.outerHTML);
 
+                // Log the outerHTML as a separate message to ensure it's captured correctly
+                console.log('Click target outerHTML:', target.outerHTML);
+
                 // Capture the complete HTML of the element
                 // Base64 encode the outerHTML to handle special characters and multi-line HTML
                 const encodedHTML = btoa(unescape(encodeURIComponent(target.outerHTML)));
@@ -1051,42 +1219,123 @@ Please provide only the Python code without any explanations.
                 }));
                 console.log('======================');
 
-                // Try to get a selector for the element
+                // Generate a reliable CSS selector for the element
                 let selector = '';
-                if (id) {
-                  selector = '#' + id;
-                } else if (name) {
-                  selector = tagName + '[name="' + name + '"]';
-                } else if (classes) {
-                  selector = '.' + classes.replace(/\\s+/g, '.');
-                } else {
-                  // Create a path from the element to the root
-                  let element = target;
-                  const path = [];
-                  while (element && element.nodeType === Node.ELEMENT_NODE) {
-                    let selector = element.nodeName.toLowerCase();
-                    if (element.id) {
-                      selector += '#' + element.id;
-                      path.unshift(selector);
-                      break;
-                    } else if (element.getAttribute('name')) {
-                      selector += '[name="' + element.getAttribute('name') + '"]';
-                      path.unshift(selector);
-                      break;
-                    } else {
-                      let sibling = element;
-                      let nth = 1;
-                      while (sibling = sibling.previousElementSibling) {
-                        if (sibling.nodeName.toLowerCase() === selector) nth++;
+
+                try {
+                  // Log the outerHTML for debugging
+                  console.log('Generating selector from element:', target.outerHTML);
+
+                  // First, try to use unique attributes for a simple selector
+                  if (id) {
+                    // ID is the most reliable selector
+                    selector = '#' + CSS.escape(id);
+                  } else if (name) {
+                    // Name attribute is also quite reliable
+                    selector = tagName + '[name="' + CSS.escape(name) + '"]';
+                  } else if (target.getAttribute('data-testid')) {
+                    // data-testid is often used for testing and is reliable
+                    selector = tagName + '[data-testid="' + CSS.escape(target.getAttribute('data-testid')) + '"]';
+                  } else if (target.getAttribute('aria-label')) {
+                    // aria-label can be useful for accessibility elements
+                    selector = tagName + '[aria-label="' + CSS.escape(target.getAttribute('aria-label')) + '"]';
+                  } else if (classes && classes.trim()) {
+                    // Classes can be useful but less reliable if they change
+                    selector = '.' + classes.trim().split(/\\s+/).map(c => CSS.escape(c)).join('.');
+                  } else {
+                    // As a last resort, create a path from the element to the root
+                    let element = target;
+                    const path = [];
+                    let pathDepth = 0;
+                    const MAX_PATH_DEPTH = 5; // Limit path depth to avoid overly complex selectors
+
+                    while (element && element.nodeType === Node.ELEMENT_NODE && pathDepth < MAX_PATH_DEPTH) {
+                      let elementSelector = element.nodeName.toLowerCase();
+
+                      // Try to use unique attributes for this element in the path
+                      if (element.id) {
+                        elementSelector += '#' + CSS.escape(element.id);
+                        path.unshift(elementSelector);
+                        break; // ID is unique, so we can stop here
+                      } else if (element.getAttribute('name')) {
+                        elementSelector += '[name="' + CSS.escape(element.getAttribute('name')) + '"]';
+                        path.unshift(elementSelector);
+                        break; // Name is often unique enough
+                      } else if (element.getAttribute('data-testid')) {
+                        elementSelector += '[data-testid="' + CSS.escape(element.getAttribute('data-testid')) + '"]';
+                        path.unshift(elementSelector);
+                        break;
+                      } else if (element.getAttribute('aria-label')) {
+                        elementSelector += '[aria-label="' + CSS.escape(element.getAttribute('aria-label')) + '"]';
+                        path.unshift(elementSelector);
+                        break;
+                      } else {
+                        // If no unique attributes, use nth-child for more specificity
+                        let sibling = element;
+                        let nth = 1;
+                        while (sibling = sibling.previousElementSibling) {
+                          if (sibling.nodeName.toLowerCase() === elementSelector) nth++;
+                        }
+                        if (nth !== 1) elementSelector += ':nth-of-type(' + nth + ')';
+
+                        // Add classes if available for more specificity
+                        const elementClasses = element.className;
+                        if (elementClasses && typeof elementClasses === 'string' && elementClasses.trim()) {
+                          const classSelector = '.' + elementClasses.trim().split(/\\s+/).map(c => CSS.escape(c)).join('.');
+                          elementSelector += classSelector;
+                        }
                       }
-                      if (nth !== 1) selector += ':nth-of-type(' + nth + ')';
+
+                      path.unshift(elementSelector);
+                      element = element.parentNode;
+                      pathDepth++;
                     }
-                    path.unshift(selector);
-                    element = element.parentNode;
+
+                    selector = path.join(' > ');
                   }
-                  selector = path.join(' > ');
+
+                  // Validate the selector by testing it
+                  try {
+                    const selectedElements = document.querySelectorAll(selector);
+                    if (selectedElements.length === 0) {
+                      console.log('Warning: Generated selector matches no elements');
+                    } else if (selectedElements.length > 1) {
+                      console.log('Warning: Generated selector matches multiple elements (' + selectedElements.length + ')');
+
+                      // Try to make the selector more specific
+                      if (selectedElements.length > 1 && target.textContent && target.textContent.trim()) {
+                        const textContent = target.textContent.trim();
+                        if (textContent.length < 50) { // Only use short text to avoid overly complex selectors
+                          // Use a custom attribute selector instead of non-standard :contains()
+                          // This is just for logging purposes, as we can't modify the DOM
+                          console.log('Suggested refinement: Filter elements with text content:', textContent);
+
+                          // For elements with exact text content (like buttons)
+                          if (target.children.length === 0 && target.textContent === textContent) {
+                            // For elements that only contain text (no child elements)
+                            console.log('Element has exact text content, could use XPath: //' + tagName + '[text()="' + textContent.replace(/"/g, '\\"') + '"]');
+                          }
+                        }
+                      }
+                    } else if (selectedElements[0] !== target) {
+                      console.log('Warning: Generated selector matches a different element than intended');
+                    } else {
+                      console.log('Selector validation successful');
+                    }
+                  } catch (validationError) {
+                    console.error('Error validating selector:', validationError);
+                  }
+                } catch (selectorError) {
+                  console.error('Error generating selector:', selectorError);
+
+                  // Fallback to a simple selector if there was an error
+                  selector = tagName;
+                  if (id) selector += '#' + id;
+                  else if (name) selector += '[name="' + name + '"]';
                 }
 
+                // Store the outerHTML as a separate property for use in selector generation
+                console.log('Element outerHTML for selector:', target.outerHTML);
                 console.log('Element selector:', selector);
 
                 // For form elements, capture additional information
@@ -1170,48 +1419,124 @@ Please provide only the Python code without any explanations.
                 }));
                 console.log('====================');
 
-                // Try to get a selector for the element
+                // Log the outerHTML as a separate message to ensure it's captured correctly
+                console.log('Input target outerHTML:', target.outerHTML);
+
+                // Generate a reliable CSS selector for the input element
                 let selector = '';
-                if (inputId) {
-                  selector = '#' + inputId;
-                } else if (inputName) {
-                  selector = tagName + '[name="' + inputName + '"]';
-                } else if (placeholder) {
-                  selector = tagName + '[placeholder="' + placeholder + '"]';
-                } else if (classes) {
-                  selector = '.' + classes.replace(/\\s+/g, '.');
-                } else {
-                  // Create a path from the element to the root
-                  let element = target;
-                  const path = [];
-                  while (element && element.nodeType === Node.ELEMENT_NODE) {
-                    let selector = element.nodeName.toLowerCase();
-                    if (element.id) {
-                      selector += '#' + element.id;
-                      path.unshift(selector);
-                      break;
-                    } else if (element.getAttribute('name')) {
-                      selector += '[name="' + element.getAttribute('name') + '"]';
-                      path.unshift(selector);
-                      break;
-                    } else if (element.getAttribute('placeholder')) {
-                      selector += '[placeholder="' + element.getAttribute('placeholder') + '"]';
-                      path.unshift(selector);
-                      break;
-                    } else {
-                      let sibling = element;
-                      let nth = 1;
-                      while (sibling = sibling.previousElementSibling) {
-                        if (sibling.nodeName.toLowerCase() === selector) nth++;
+
+                try {
+                  // Log the outerHTML for debugging
+                  console.log('Generating selector from input element:', target.outerHTML);
+
+                  // First, try to use unique attributes for a simple selector
+                  if (inputId) {
+                    // ID is the most reliable selector
+                    selector = '#' + CSS.escape(inputId);
+                  } else if (inputName) {
+                    // Name attribute is also quite reliable for form elements
+                    selector = tagName + '[name="' + CSS.escape(inputName) + '"]';
+                  } else if (placeholder) {
+                    // Placeholder is often unique for input elements
+                    selector = tagName + '[placeholder="' + CSS.escape(placeholder) + '"]';
+                  } else if (target.getAttribute('data-testid')) {
+                    // data-testid is often used for testing and is reliable
+                    selector = tagName + '[data-testid="' + CSS.escape(target.getAttribute('data-testid')) + '"]';
+                  } else if (target.getAttribute('aria-label')) {
+                    // aria-label can be useful for accessibility elements
+                    selector = tagName + '[aria-label="' + CSS.escape(target.getAttribute('aria-label')) + '"]';
+                  } else if (classes && classes.trim()) {
+                    // Classes can be useful but less reliable if they change
+                    selector = '.' + classes.trim().split(/\\s+/).map(c => CSS.escape(c)).join('.');
+                  } else {
+                    // As a last resort, create a path from the element to the root
+                    let element = target;
+                    const path = [];
+                    let pathDepth = 0;
+                    const MAX_PATH_DEPTH = 5; // Limit path depth to avoid overly complex selectors
+
+                    while (element && element.nodeType === Node.ELEMENT_NODE && pathDepth < MAX_PATH_DEPTH) {
+                      let elementSelector = element.nodeName.toLowerCase();
+
+                      // Try to use unique attributes for this element in the path
+                      if (element.id) {
+                        elementSelector += '#' + CSS.escape(element.id);
+                        path.unshift(elementSelector);
+                        break; // ID is unique, so we can stop here
+                      } else if (element.getAttribute('name')) {
+                        elementSelector += '[name="' + CSS.escape(element.getAttribute('name')) + '"]';
+                        path.unshift(elementSelector);
+                        break; // Name is often unique enough
+                      } else if (element.getAttribute('placeholder')) {
+                        elementSelector += '[placeholder="' + CSS.escape(element.getAttribute('placeholder')) + '"]';
+                        path.unshift(elementSelector);
+                        break; // Placeholder is often unique for inputs
+                      } else if (element.getAttribute('data-testid')) {
+                        elementSelector += '[data-testid="' + CSS.escape(element.getAttribute('data-testid')) + '"]';
+                        path.unshift(elementSelector);
+                        break;
+                      } else if (element.getAttribute('aria-label')) {
+                        elementSelector += '[aria-label="' + CSS.escape(element.getAttribute('aria-label')) + '"]';
+                        path.unshift(elementSelector);
+                        break;
+                      } else {
+                        // If no unique attributes, use nth-child for more specificity
+                        let sibling = element;
+                        let nth = 1;
+                        while (sibling = sibling.previousElementSibling) {
+                          if (sibling.nodeName.toLowerCase() === elementSelector) nth++;
+                        }
+                        if (nth !== 1) elementSelector += ':nth-of-type(' + nth + ')';
+
+                        // Add classes if available for more specificity
+                        const elementClasses = element.className;
+                        if (elementClasses && typeof elementClasses === 'string' && elementClasses.trim()) {
+                          const classSelector = '.' + elementClasses.trim().split(/\\s+/).map(c => CSS.escape(c)).join('.');
+                          elementSelector += classSelector;
+                        }
                       }
-                      if (nth !== 1) selector += ':nth-of-type(' + nth + ')';
+
+                      path.unshift(elementSelector);
+                      element = element.parentNode;
+                      pathDepth++;
                     }
-                    path.unshift(selector);
-                    element = element.parentNode;
+
+                    selector = path.join(' > ');
                   }
-                  selector = path.join(' > ');
+
+                  // Validate the selector by testing it
+                  try {
+                    const selectedElements = document.querySelectorAll(selector);
+                    if (selectedElements.length === 0) {
+                      console.log('Warning: Generated input selector matches no elements');
+                    } else if (selectedElements.length > 1) {
+                      console.log('Warning: Generated input selector matches multiple elements (' + selectedElements.length + ')');
+
+                      // For input elements, try to make the selector more specific with type
+                      if (inputType) {
+                        const moreSpecificSelector = selector + '[type="' + CSS.escape(inputType) + '"]';
+                        console.log('Trying more specific input selector with type:', moreSpecificSelector);
+                      }
+                    } else if (selectedElements[0] !== target) {
+                      console.log('Warning: Generated input selector matches a different element than intended');
+                    } else {
+                      console.log('Input selector validation successful');
+                    }
+                  } catch (validationError) {
+                    console.error('Error validating input selector:', validationError);
+                  }
+                } catch (selectorError) {
+                  console.error('Error generating input selector:', selectorError);
+
+                  // Fallback to a simple selector if there was an error
+                  selector = tagName;
+                  if (inputId) selector += '#' + inputId;
+                  else if (inputName) selector += '[name="' + inputName + '"]';
+                  else if (placeholder) selector += '[placeholder="' + placeholder + '"]';
                 }
 
+                // Store the outerHTML as a separate property for use in selector generation
+                console.log('Input element outerHTML for selector:', target.outerHTML);
                 console.log('Input selector:', selector);
               } catch (error) {
                 console.error('Error getting input details:', error);
@@ -1260,36 +1585,143 @@ Please provide only the Python code without any explanations.
                 }
                 console.log('Form submitted:', JSON.stringify(formDataObj));
 
-                // Get form selector
+                // Log the outerHTML as a separate message to ensure it's captured correctly
+                console.log('Form target outerHTML:', form.outerHTML);
+
+                // Generate a reliable CSS selector for the form element
                 let formSelector = '';
-                if (form.id) {
-                  formSelector = '#' + form.id;
-                } else if (form.name) {
-                  formSelector = 'form[name="' + form.name + '"]';
-                } else {
-                  // Create a path from the form to the root
-                  let element = form;
-                  const path = [];
-                  while (element && element.nodeType === Node.ELEMENT_NODE) {
-                    let selector = element.nodeName.toLowerCase();
-                    if (element.id) {
-                      selector += '#' + element.id;
-                      path.unshift(selector);
-                      break;
-                    } else {
-                      let sibling = element;
-                      let nth = 1;
-                      while (sibling = sibling.previousElementSibling) {
-                        if (sibling.nodeName.toLowerCase() === selector) nth++;
+
+                try {
+                  // Log the outerHTML for debugging
+                  console.log('Generating selector from form element:', form.outerHTML);
+
+                  // First, try to use unique attributes for a simple selector
+                  if (form.id) {
+                    // ID is the most reliable selector
+                    formSelector = '#' + CSS.escape(form.id);
+                  } else if (form.name) {
+                    // Name attribute is also quite reliable for forms
+                    formSelector = 'form[name="' + CSS.escape(form.name) + '"]';
+                  } else if (form.getAttribute('data-testid')) {
+                    // data-testid is often used for testing and is reliable
+                    formSelector = 'form[data-testid="' + CSS.escape(form.getAttribute('data-testid')) + '"]';
+                  } else if (form.getAttribute('aria-label')) {
+                    // aria-label can be useful for accessibility elements
+                    formSelector = 'form[aria-label="' + CSS.escape(form.getAttribute('aria-label')) + '"]';
+                  } else if (form.className && typeof form.className === 'string' && form.className.trim()) {
+                    // Classes can be useful but less reliable if they change
+                    formSelector = 'form.' + form.className.trim().split(/\\s+/).map(c => CSS.escape(c)).join('.');
+                  } else if (form.action) {
+                    // Form action can sometimes be useful
+                    formSelector = 'form[action="' + CSS.escape(form.action) + '"]';
+                  } else {
+                    // As a last resort, create a path from the element to the root
+                    let element = form;
+                    const path = [];
+                    let pathDepth = 0;
+                    const MAX_PATH_DEPTH = 5; // Limit path depth to avoid overly complex selectors
+
+                    while (element && element.nodeType === Node.ELEMENT_NODE && pathDepth < MAX_PATH_DEPTH) {
+                      let elementSelector = element.nodeName.toLowerCase();
+
+                      // Try to use unique attributes for this element in the path
+                      if (element.id) {
+                        elementSelector += '#' + CSS.escape(element.id);
+                        path.unshift(elementSelector);
+                        break; // ID is unique, so we can stop here
+                      } else if (element.getAttribute('name')) {
+                        elementSelector += '[name="' + CSS.escape(element.getAttribute('name')) + '"]';
+                        path.unshift(elementSelector);
+                        break; // Name is often unique enough
+                      } else if (element.getAttribute('data-testid')) {
+                        elementSelector += '[data-testid="' + CSS.escape(element.getAttribute('data-testid')) + '"]';
+                        path.unshift(elementSelector);
+                        break;
+                      } else if (element.getAttribute('aria-label')) {
+                        elementSelector += '[aria-label="' + CSS.escape(element.getAttribute('aria-label')) + '"]';
+                        path.unshift(elementSelector);
+                        break;
+                      } else {
+                        // If no unique attributes, use nth-child for more specificity
+                        let sibling = element;
+                        let nth = 1;
+                        while (sibling = sibling.previousElementSibling) {
+                          if (sibling.nodeName.toLowerCase() === elementSelector) nth++;
+                        }
+                        if (nth !== 1) elementSelector += ':nth-of-type(' + nth + ')';
+
+                        // Add classes if available for more specificity
+                        const elementClasses = element.className;
+                        if (elementClasses && typeof elementClasses === 'string' && elementClasses.trim()) {
+                          const classSelector = '.' + elementClasses.trim().split(/\\s+/).map(c => CSS.escape(c)).join('.');
+                          elementSelector += classSelector;
+                        }
                       }
-                      if (nth !== 1) selector += ':nth-of-type(' + nth + ')';
+
+                      path.unshift(elementSelector);
+                      element = element.parentNode;
+                      pathDepth++;
                     }
-                    path.unshift(selector);
-                    element = element.parentNode;
+
+                    formSelector = path.join(' > ');
                   }
-                  formSelector = path.join(' > ');
+
+                  // Validate the selector by testing it
+                  try {
+                    const selectedElements = document.querySelectorAll(formSelector);
+                    if (selectedElements.length === 0) {
+                      console.log('Warning: Generated form selector matches no elements');
+                    } else if (selectedElements.length > 1) {
+                      console.log('Warning: Generated form selector matches multiple elements (' + selectedElements.length + ')');
+
+                      // Try to make the selector more specific with method or enctype
+                      if (form.method) {
+                        const moreSpecificSelector = formSelector + '[method="' + CSS.escape(form.method) + '"]';
+                        console.log('Trying more specific form selector with method:', moreSpecificSelector);
+                      }
+                      if (form.enctype) {
+                        const moreSpecificSelector = formSelector + '[enctype="' + CSS.escape(form.enctype) + '"]';
+                        console.log('Trying more specific form selector with enctype:', moreSpecificSelector);
+                      }
+                    } else if (selectedElements[0] !== form) {
+                      console.log('Warning: Generated form selector matches a different element than intended');
+                    } else {
+                      console.log('Form selector validation successful');
+                    }
+                  } catch (validationError) {
+                    console.error('Error validating form selector:', validationError);
+                  }
+                } catch (selectorError) {
+                  console.error('Error generating form selector:', selectorError);
+
+                  // Fallback to a simple selector if there was an error
+                  formSelector = 'form';
+                  if (form.id) formSelector += '#' + form.id;
+                  else if (form.name) formSelector += '[name="' + form.name + '"]';
                 }
-                formSelector = form.outerHTML;
+                // Store the outerHTML for more accurate selector generation
+                console.log('target.outerHTML:', form.outerHTML);
+
+                // Encode the outerHTML to handle special characters and multi-line HTML
+                try {
+                  const encodedHTML = btoa(unescape(encodeURIComponent(form.outerHTML)));
+                  console.log('Element HTML (encoded):', encodedHTML);
+                } catch (error) {
+                  console.error('Error encoding form outerHTML:', error);
+                }
+
+                // Log the form ID and name for easier extraction
+                console.log('ID:', form.id || '없음');
+                console.log('Name:', form.name || '없음');
+
+                // Log the complete target element as a JSON string
+                console.log('Complete target element:', JSON.stringify(form, (key, value) => {
+                  // Avoid circular references and limit depth
+                  if (key === 'parentNode' || key === 'ownerDocument' || key === 'childNodes') {
+                    return undefined;
+                  }
+                  return value;
+                }));
 
                 console.log('Form selector:', formSelector);
               } catch (error) {
